@@ -65,7 +65,7 @@ app.get('/makeCall', function(req, res) {
   twilioClient.makeCall({
       url: "https://a606a4ed.ngrok.io/twilioVoice",
       // url: path.join(__dirname, '/twilioVoice')
-      to: process.env.MY_PHONE_NUMBER,
+      to: phoneNumber,
       from: process.env.TWILIO_PHONE_NUMBER
   }, function(err, call) {
       if (err) {
