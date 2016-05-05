@@ -54,18 +54,44 @@ var schema = new mongoose.Schema({
 var Call = mongoose.model('Call', schema);
 
 app.get('/', function(req, res) {
-  res.render('index', {
-
+  var query = Call.find({})
+  query.exec(function(err, calls) {
+    if (err) {
+      return handleError(err)
+    } else {
+      res.render('index', {
+        calls: calls
+      })
+    }
   })
 })
 
-app.get('/makeCall', function(req, res) {
-  var query = req.query
-  var phoneNumber = query.phoneNumber
+app.get('/callcenter', function(req, res) {
+  res.render('callcenter', {})
+})
+
+app.get('/call/:CallSid', function(req, res) {
+  var CallSid = req.params.CallSid
+  var query = Call.findOne({'CallSid': CallSid})
+  query.exec(function(err, call) {
+    if (err) {
+      return handleError(err)
+    } else {
+      res.render('call', {
+        call: call
+      })
+    }
+  })
+})
+
+app.post('/makeCall', function(req, res) {
+  // var query = req.query
+  var phonenumber = req.body.phonenumber
+  // var phoneNumber = query.phoneNumber
   twilioClient.makeCall({
       url: "https://a606a4ed.ngrok.io/twilioVoice",
       // url: path.join(__dirname, '/twilioVoice')
-      to: phoneNumber,
+      to: phonenumber,
       from: process.env.TWILIO_PHONE_NUMBER
   }, function(err, call) {
       if (err) {
@@ -74,6 +100,7 @@ app.get('/makeCall', function(req, res) {
         process.stdout.write(call.sid)
       }
   })
+  res.redirect('/')
 })
 
 app.post('/transcriptionComplete', function(req, res) {

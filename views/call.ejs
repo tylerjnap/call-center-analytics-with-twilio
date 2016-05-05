@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+  <title>Twilio Call Center</title>
+  <link rel="shortcut icon" href="/img/favicon.ico" />
+  <script src="../js/jquery-1.12.0.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="row">
+  <div class="col-xs-12">
+    <h2>Call by <%= call['From'] %> to <%= call['To'] %></h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <h3><%= call['created'].getMonth()+1 %>/<%= call['created'].getDate()%>/<%= call['created'].getFullYear() %> at <%= call['created'].getHours() %>:<%= call['created'].getSeconds() %></h3>
+  </div>
+</div>
+<div class="row">
+  <!-- Left side -->
+  <div class="col-xs-6">
+    <div class="row">
+      <div class="col-xs-12">
+        <h3>Call content</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <p><%= call['TranscriptionText'] %></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <audio controls>
+          <source src=<%= call['RecordingUrl']+".mp3" %> type="audio/mpeg">
+        Your browser does not support the audio element.
+        </audio>
+      </div>
+    </div>
+  </div>
+  <!-- End left side -->
+  <!-- Right side -->
+  <div class="col-xs-6">
+    <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
+      <li class="active"><a href="#sentiments" data-toggle="tab">Sentiments</a></li>
+      <li><a href="#concepts" data-toggle="tab">Concepts</a></li>
+    </ul>
+    <!-- Tab content -->
+    <div id="my-tab-content" class="tab-content">
+      <div class="tab-pane active" id="sentiments">
+        <!-- Aggregate -->
+        <div class="row">
+          <div class="col-xs-12">
+            <h4>Aggregate</h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <p>Score: <%= call['sentiments']['aggregate']['score'] %></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <p>Sentiment: <%= call['sentiments']['aggregate']['sentiment'] %></p>
+          </div>
+        </div>
+        <!-- /Aggregate -->
+        <!-- Positive -->
+        <div class="row">
+          <div class="col-xs-12">
+            <h4>Positive</h4>
+          </div>
+        </div>
+        <% if (call['sentiments']['positive'].length > 0) { %>
+          <% for (var i=0; i<call['sentiments']['positive'].length; i++) { %>
+            <div class="row">
+              <div class="col-xs-12">
+                <ul>
+                  <li>Topic: <%= call['sentiments']['positive'][i]['topic'] %></li>
+                  <li>Sentiment: <%= call['sentiments']['positive'][i]['sentiment'] %></li>
+                  <li>Score: <%= call['sentiments']['positive'][i]['score'] %></li>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+        <% } else { %>
+          <p>No positive sentiments</p>
+        <% } %>
+        <!-- /Positive -->
+        <!-- Negative -->
+        <div class="row">
+          <div class="col-xs-12">
+            <h4>Negative</h4>
+          </div>
+        </div>
+        <% if (call['sentiments']['negative'].length > 0) { %>
+          <% for (var i=0; i<call['sentiments']['negative'].length; i++) { %>
+            <div class="row">
+              <div class="col-xs-12">
+                <ul>
+                  <li>Topic: <%= call['sentiments']['negative'][i]['topic'] %></li>
+                  <li>Sentiment: <%= call['sentiments']['negative'][i]['sentiment'] %></li>
+                  <li>Score: <%= call['sentiments']['negative'][i]['score'] %></li>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+        <% } else { %>
+          <p>No negative sentiments</p>
+        <% } %>
+        <!-- /Negative -->
+      </div>
+      <div class="tab-pane" id="concepts">
+        <h4>Concepts</h4>
+        <% if(call['concepts']['concepts'].length > 0) { %>
+          <% for (var i=0; i<call['concepts']['concepts'].length; i++) { %>
+            <div class="row">
+              <div class="col-xs-12">
+                <ul>
+                  <li>Concept: <%= call['concepts']['concepts'][i]['concept'] %></li>
+                  <li>Occurrences: <%= call['concepts']['concepts'][i]['occurrences'] %></li>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+        <% } else { %>
+          <p>No concepts</p>
+        <% } %>
+      </div>
+    </div>
+    <!-- End Tab content -->
+  </div>
+  <!-- End right side -->
+</div>
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        $('#tabs').tab();
+    });
+</script>
+</body>

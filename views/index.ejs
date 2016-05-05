@@ -8,40 +8,14 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 </head>
 <body>
-
-<div class="row">
-  <div class="col-xs-12 text-center">
-    <p>
-      Enter your phone number to receive a call
-    </p>
-  </div>
-</div>
-<div class="row">
-  <div class="col-xs-12 text-center">
-    <input type="text" name="phonenumber">
-  </div>
-</div>
-<div class="row">
-  <div class="col-xs-12 text-center">
-    <button type="submit" class="btn btn-default call">Sign in</button>
-  </div>
-</div>
-
+<h1>All your calls</h1>
+<ul>
+    <% for(var i=0; i<calls.length; i++) { %>
+        <li>
+            <a href='call/<%= calls[i]['CallSid'] %>'>
+                <%= calls[i]['Called'] + ' at ' + calls[i]['created']  %>
+            </a>
+        </li>
+    <% } %>
+</ul>
 </body>
-<script>
-$(window).load(function() {
-
-  $('.call').click(function() {
-      $.ajax({
-      url: "/makeCall",
-      type: 'GET',
-      success: function(res) {
-        console.log(res);
-       }
-     });
-   });
-
-});
-
-</script>
-</html>
