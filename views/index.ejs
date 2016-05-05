@@ -6,14 +6,40 @@
   <script src="js/jquery-1.12.0.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400italic,400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="css/main.css"></style>
 </head>
 <body>
-<h1>All your calls</h1>
+
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="https://havenondemand.com"><img alt="Brand" src="img/hod-black.png" height="20"></a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="/">View all calls</a></li>
+        <li><a href="/callcenter">Make a call</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+      <!-- <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">About</a></li>
+      </ul> -->
+    </div>
+  </nav>
+
+
+
+<div class="row">
+  <div class="col-xs-12">
+    <h1>All your calls</h1>
+  </div>
+</div>
 <ul>
     <% for(var i=0; i<calls.length; i++) { %>
         <li>
             <a href='call/<%= calls[i]['CallSid'] %>'>
-                <%= calls[i]['Called'] + ' at ' + calls[i]['created']  %>
+                Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %>
             </a>
         </li>
     <% } %>

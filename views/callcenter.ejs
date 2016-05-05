@@ -6,14 +6,31 @@
   <script src="js/jquery-1.12.0.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400italic,400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="css/main.css"></style>
 </head>
 <body>
 
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="https://havenondemand.com"><img alt="Brand" src="img/hod-black.png" height="20"></a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="/">View all calls</a></li>
+        <li><a href="/callcenter">Make a call</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+      <!-- <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">About</a></li>
+      </ul> -->
+    </div>
+  </nav>
+
 <div class="row">
-  <div class="col-xs-12 text-center">
-    <p>
-      Enter your phone number to receive a call
-    </p>
+  <div class="col-xs-12">
+    <h1>Enter your phone number to receive a call</h1>
   </div>
 </div>
 
@@ -22,7 +39,7 @@
     <label for="phonenumber">Phone number</label>
     <input type="text" name="phonenumber" placeholder="+15165557777" id=phonenumber>
   </div>
-  <button type="submit" class="btn btn-default" id="call">Sign in</button>
+  <button type="submit" class="btn btn-default" id="call">Call me!</button>
 </form>
 
 </body>
