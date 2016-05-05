@@ -3,6 +3,22 @@ body {
   background-color: #425563;
   color: white;
 }
+
+h1 {
+  font-size: 20px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+.transcription-text {
+  color: black;
+}
 /* Navbar stuff*/
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
   color: #000;  /*Sets the text hover color on navbar*/
