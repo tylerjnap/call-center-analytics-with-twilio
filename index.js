@@ -30,6 +30,9 @@ mongoose.connect(uristring, function (err, res) {
 
 var schema = new mongoose.Schema({
   created: { type: Date, default: Date.now },
+  processed: { type: Boolean, default: false },
+  processing: { type: Boolean, default: false },
+  indexed: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
   ApiVersion: String,
@@ -84,12 +87,111 @@ app.get('/call/:CallSid', function(req, res) {
   })
 })
 
+app.get('/processCall', function(req, res) {
+  var CallSid = req.query.CallSid
+  // updated to processing
+  Call.update({'CallSid': CallSid}, {
+    processing: true
+  }, function(err, numberAffected, rawResponse) {
+
+  })
+  //
+  twilioClient.calls(CallSid).get(function(err, call) {
+    if (err) {
+      console.log(err)
+    } else {
+      twilioClient.recordings.get({
+      	callSid: CallSid,
+      }, function(err, data) {
+      	data.recordings.forEach(function(recording) {
+          //
+          // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+          var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+          var data1 = {url: recordingUrl, language: 'en-US-tel'}
+          // debugger
+          hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
+            var jobID = resp1.body.jobID
+            // debugger
+            getAsyncResult(jobID, function(body) {
+              // debugger
+              if (body == 'failed') {
+                // do something
+              } else {
+                //continue
+                var text = body.actions[0].result.document[0].content
+                // HOD stuff
+                var data2 = {text: text}
+                hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
+                  // debugger
+                  var sentimentResponse = body2
+                  hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
+                    // debugger
+                    var conceptsResponse = body3
+                    var data3 = {
+                      index: "twiliocallcenter",
+                      json: JSON.stringify({
+                        document: [
+                          {
+                            // title: counter.toString(),
+                            // body: body
+                            content: text,
+                            // sentiments: sentimentResponse,
+                            // concepts: conceptsResponse
+                          }
+                        ]
+                      })
+                    }
+                    hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
+                      // mongo
+                      // debugger
+                      Call.update({'CallSid': CallSid}, {
+                        text: text,
+                        concepts: conceptsResponse,
+                        sentiments: sentimentResponse,
+                        RecordingUrl: recordingUrl,
+                        TranscriptionText: text,
+                        indexed: true,
+                        processed: true
+                      }, function(err, numberAffected, rawResponse) {
+
+                      })
+                      //
+                    })
+                  })
+                })
+                // HOD stuff
+              }
+            })
+          })
+          //
+      	//  console.log(recording.Sid)
+      	})
+      })
+    }
+  })
+})
+
+function getAsyncResult(jobID, callback) {
+  hodClient.getJobStatus(jobID, function(err, resp, body) {
+    // debugger
+    if (resp.body['status'] != 'finished') {
+      if (resp.body.actions[0].status == 'failed') {
+        callback('failed')
+      } else {
+        getAsyncResult(jobID, callback)
+      }
+    } else {
+      callback(body)
+    }
+  })
+}
+
 app.post('/makeCall', function(req, res) {
   // var query = req.query
   var phonenumber = req.body.phonenumber
   // var phoneNumber = query.phoneNumber
-  twilioClient.makeCall({
-      url: "https://a606a4ed.ngrok.io/twilioVoice",
+  twilioClient.calls.create({
+      url: "https://9fccd4b6.ngrok.io/twilioVoice",
       // url: path.join(__dirname, '/twilioVoice')
       to: phonenumber,
       from: process.env.TWILIO_PHONE_NUMBER
@@ -98,6 +200,12 @@ app.post('/makeCall', function(req, res) {
         console.log(err)
       } else {
         process.stdout.write(call.sid)
+        var callObj = {}
+        callObj['CallSid'] = call.sid
+        callObj['To'] = call.to
+        callObj['From'] = call.from
+        var callMongo = new Call (callObj)
+        callMongo.save(function (err) {if (err) console.log ('Error on save!')})
       }
   })
   res.redirect('/')

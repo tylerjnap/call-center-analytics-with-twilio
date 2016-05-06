@@ -35,13 +35,57 @@
     <h1>All your calls</h1>
   </div>
 </div>
-<ul>
-    <% for(var i=0; i<calls.length; i++) { %>
-        <li>
-            <a href='call/<%= calls[i]['CallSid'] %>'>
-                Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %>
-            </a>
-        </li>
+<div class="row">
+  <div class="col-xs-12">
+    <table class="table" id="callTable">
+      <thead>
+        <tr>
+          <th>Call</th>
+          <th>Call SID</th>
+          <th> </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (var i=0; i<calls.length; i++) { %>
+        <tr>
+          <!-- Completed processed -->
+          <% if (calls[i]['processed'] && calls[i]['processing']) { %>
+            <td><a href='call/<%= calls[i]['CallSid'] %>'>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></a></td>
+            <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
+            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processed</button></td>
+          <!-- Currently processing -->
+          <% } else if (!calls[i]['processed'] && calls[i]['processing']) { %>
+            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+            <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
+            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processing</button></td>
+          <!-- Have not begun processing -->
+          <% } else { %>
+            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+            <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
+            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Process</button></td>
+          <% } %>
+          <td></td>
+        </tr>
+      </tbody>
     <% } %>
-</ul>
+
+<script>
+function processCall(elem) {
+  //disable button
+  elem.disabled = "disabled"
+  elem.innerText = "Processing"
+  var CallSid = elem.id
+  $.ajax({
+    url: "/processCall?CallSid="+CallSid,
+    type: 'GET',
+      success: function(res) {
+        console.log(res);
+      }
+  });
+}
+
+$(window).load(function() {
+
+});
+</script>
 </body>
