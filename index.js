@@ -32,6 +32,7 @@ var schema = new mongoose.Schema({
   created: { type: Date, default: Date.now },
   processed: { type: Boolean, default: false },
   processing: { type: Boolean, default: false },
+  error: { type: Boolean, default: false },
   indexed: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
@@ -116,49 +117,54 @@ app.get('/processCall', function(req, res) {
               // debugger
               if (body == 'failed') {
                 // do something
+                createError(CallSid)
               } else {
                 //continue
                 var text = body.actions[0].result.document[0].content
-                // HOD stuff
-                var data2 = {text: text}
-                hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
-                  // debugger
-                  var sentimentResponse = body2
-                  hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
+                if (text == "") {
+                  createError(CallSid)
+                } else {
+                  // HOD stuff
+                  var data2 = {text: text}
+                  hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                     // debugger
-                    var conceptsResponse = body3
-                    var data3 = {
-                      index: "twiliocallcenter",
-                      json: JSON.stringify({
-                        document: [
-                          {
-                            // title: counter.toString(),
-                            // body: body
-                            content: text,
-                            // sentiments: sentimentResponse,
-                            // concepts: conceptsResponse
-                          }
-                        ]
-                      })
-                    }
-                    hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
-                      // mongo
+                    var sentimentResponse = body2
+                    hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
                       // debugger
-                      Call.update({'CallSid': CallSid}, {
-                        text: text,
-                        concepts: conceptsResponse,
-                        sentiments: sentimentResponse,
-                        RecordingUrl: recordingUrl,
-                        TranscriptionText: text,
-                        indexed: true,
-                        processed: true
-                      }, function(err, numberAffected, rawResponse) {
+                      var conceptsResponse = body3
+                      var data3 = {
+                        index: "twiliocallcenter",
+                        json: JSON.stringify({
+                          document: [
+                            {
+                              // title: counter.toString(),
+                              // body: body
+                              content: text,
+                              // sentiments: sentimentResponse,
+                              // concepts: conceptsResponse
+                            }
+                          ]
+                        })
+                      }
+                      hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
+                        // mongo
+                        // debugger
+                        Call.update({'CallSid': CallSid}, {
+                          text: text,
+                          concepts: conceptsResponse,
+                          sentiments: sentimentResponse,
+                          RecordingUrl: recordingUrl,
+                          TranscriptionText: text,
+                          indexed: true,
+                          processed: true
+                        }, function(err, numberAffected, rawResponse) {
 
+                        })
+                        //
                       })
-                      //
                     })
                   })
-                })
+                }
                 // HOD stuff
               }
             })
@@ -183,6 +189,14 @@ function getAsyncResult(jobID, callback) {
     } else {
       callback(body)
     }
+  })
+}
+
+function createError(callSid) {
+  Call.update({'CallSid': callSid}, {
+    error: true
+  }, function(err, numberAffected, rawResponse) {
+
   })
 }
 

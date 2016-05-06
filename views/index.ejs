@@ -54,10 +54,15 @@
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processed</button></td>
           <!-- Currently processing -->
-          <% } else if (!calls[i]['processed'] && calls[i]['processing']) { %>
+          <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processing</button></td>
+          <!-- Error while processing -->
+          <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error']) { %>
+            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+            <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
+            <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error processing</button></td>
           <!-- Have not begun processing -->
           <% } else { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
