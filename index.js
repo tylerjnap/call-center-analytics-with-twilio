@@ -1,4 +1,11 @@
-require('dotenv').load()
+var env = process.env.NODE_ENV || 'dev'
+
+if (env == 'dev') {
+  require('dotenv').load()
+  var twiMLUrl = "https://9fccd4b6.ngrok.io/twilioVoice"
+} else {
+  var twiMLUrl = path.join(__dirname, '/twilioVoice')
+}
 
 var express = require('express')
 var app = express()
@@ -90,90 +97,108 @@ app.get('/call/:CallSid', function(req, res) {
 
 app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
-  // updated to processing
   Call.update({'CallSid': CallSid}, {
     processing: true
   }, function(err, numberAffected, rawResponse) {
-
-  })
-  //
-  twilioClient.calls(CallSid).get(function(err, call) {
-    if (err) {
-      console.log(err)
-    } else {
-      twilioClient.recordings.get({
-      	callSid: CallSid,
-      }, function(err, data) {
-      	data.recordings.forEach(function(recording) {
+    //
+    twilioClient.calls(CallSid).get(function(err, call) {
+      if (err) {
+        console.log(err)
+      } else {
+        twilioClient.recordings.get({
+          callSid: CallSid,
+        }, function(err, data) {
+          console.log("Obtained recordings")
+          console.log(data.recordings)
           //
-          // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-          var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-          var data1 = {url: recordingUrl, language: 'en-US-tel'}
-          // debugger
-          hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
-            var jobID = resp1.body.jobID
-            // debugger
-            getAsyncResult(jobID, function(body) {
+          if (data.recordings.length > 0) { //if there is a recording
+            //
+            data.recordings.forEach(function(recording) {
+              //
+              debugger
+              //CHECK HERE IF data.recordings.length == 0. IF IT IS, THEN DON'T EXECUTE REST OF JOBS
+              // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+              var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+              var data1 = {url: recordingUrl, language: 'en-US-tel'}
               // debugger
-              if (body == 'failed') {
-                // do something
-                createError(CallSid)
-              } else {
-                //continue
-                var text = body.actions[0].result.document[0].content
-                if (text == "") {
-                  createError(CallSid)
-                } else {
-                  // HOD stuff
-                  var data2 = {text: text}
-                  hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
-                    // debugger
-                    var sentimentResponse = body2
-                    hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
-                      // debugger
-                      var conceptsResponse = body3
-                      var data3 = {
-                        index: "twiliocallcenter",
-                        json: JSON.stringify({
-                          document: [
-                            {
-                              // title: counter.toString(),
-                              // body: body
-                              content: text,
-                              // sentiments: sentimentResponse,
-                              // concepts: conceptsResponse
-                            }
-                          ]
-                        })
-                      }
-                      hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
-                        // mongo
+              hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
+                var jobID = resp1.body.jobID
+                // debugger
+                getAsyncResult(jobID, function(body) {
+                  // debugger
+                  if (body == 'failed') {
+                    // do something
+                    createError(CallSid)
+                  } else {
+                    //continue
+                    var text = body.actions[0].result.document[0].content
+                    console.log("Text: " + text)
+                    if (text == "") {
+                      createError(CallSid)
+                    } else {
+                      // HOD stuff
+                      var data2 = {text: text}
+                      hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                         // debugger
-                        Call.update({'CallSid': CallSid}, {
-                          text: text,
-                          concepts: conceptsResponse,
-                          sentiments: sentimentResponse,
-                          RecordingUrl: recordingUrl,
-                          TranscriptionText: text,
-                          indexed: true,
-                          processed: true
-                        }, function(err, numberAffected, rawResponse) {
-
+                        console.log("Analyzed sentiment")
+                        var sentimentResponse = body2
+                        hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
+                          // debugger
+                          console.log("Extracted concepts")
+                          var conceptsResponse = body3
+                          var data3 = {
+                            index: "twiliocallcenter",
+                            json: JSON.stringify({
+                              document: [
+                                {
+                                  // title: counter.toString(),
+                                  // body: body
+                                  content: text,
+                                  // sentiments: sentimentResponse,
+                                  // concepts: conceptsResponse
+                                }
+                              ]
+                            })
+                          }
+                          hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
+                            // mongo
+                            // debugger
+                            Call.update({'CallSid': CallSid}, {
+                              text: text,
+                              concepts: conceptsResponse,
+                              sentiments: sentimentResponse,
+                              RecordingUrl: recordingUrl,
+                              TranscriptionText: text,
+                              indexed: true,
+                              processed: true
+                            }, function(err, numberAffected, rawResponse) {
+                              console.log("Processed")
+                            })
+                            //
+                          })
                         })
-                        //
                       })
-                    })
-                  })
-                }
-                // HOD stuff
-              }
+                    }
+                    // HOD stuff
+                  }
+                })
+              })
+              //
+            //  console.log(recording.Sid)
             })
-          })
+            //
+          } else { // if there is no recording yet
+            Call.update({'CallSid': CallSid}, {
+              processing: false
+            }, function(err, numberAffected, rawResponse) {
+
+            })
+          }
           //
-      	//  console.log(recording.Sid)
-      	})
-      })
-    }
+        })
+      }
+    })
+    //
   })
 })
 
@@ -205,14 +230,14 @@ app.post('/makeCall', function(req, res) {
   var phonenumber = req.body.phonenumber
   // var phoneNumber = query.phoneNumber
   twilioClient.calls.create({
-      url: "https://9fccd4b6.ngrok.io/twilioVoice",
-      // url: path.join(__dirname, '/twilioVoice')
+      url: twiMLUrl,
       to: phonenumber,
       from: process.env.TWILIO_PHONE_NUMBER
   }, function(err, call) {
       if (err) {
         console.log(err)
       } else {
+        console.log(call)
         process.stdout.write(call.sid)
         var callObj = {}
         callObj['CallSid'] = call.sid
@@ -223,43 +248,6 @@ app.post('/makeCall', function(req, res) {
       }
   })
   res.redirect('/')
-})
-
-app.post('/transcriptionComplete', function(req, res) {
-  var body = req.body
-  var text  = body['TranscriptionText']
-  console.log(body)
-    if (text) {
-      var data1 = {text: text}
-      hodClient.call('analyzesentiment', data1, function(err1, resp1, body1) {
-        var sentimentResponse = body1
-        hodClient.call('extractconcepts', data1, function(err2, resp2, body2) {
-          var conceptsResponse = body2
-          var data2 = {
-            index: "twiliocallcenter",
-            json: JSON.stringify({
-              document: [
-                {
-                  // title: counter.toString(),
-                  // body: body
-                  content: text,
-                  // sentiments: sentimentResponse,
-                  // concepts: conceptsResponse
-                }
-              ]
-            })
-          }
-          hodClient.call('addtotextindex', data2, function(err3, resp3, body3) {
-            var callObj = body
-            callObj['created'] = Date.now()
-            callObj['concepts'] = conceptsResponse
-            callObj['sentiments'] = sentimentResponse
-            var call = new Call (callObj)
-            call.save(function (err) {if (err) console.log ('Error on save!')})
-          })
-        })
-      })
-    }
 })
 
 // Function for getting Twilio XML file

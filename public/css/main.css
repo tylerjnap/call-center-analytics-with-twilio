@@ -19,6 +19,10 @@ h3 {
 .transcription-text {
   color: black;
 }
+
+input, select, textarea{
+    color: black;
+}
 /* Navbar stuff*/
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
   color: #000;  /*Sets the text hover color on navbar*/
