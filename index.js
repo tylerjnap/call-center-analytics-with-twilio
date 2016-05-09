@@ -112,9 +112,7 @@ app.get('/processCall', function(req, res) {
           console.log(data.recordings)
           //
           if (data.recordings.length > 0) { //if there is a recording
-            //
             data.recordings.forEach(function(recording) {
-              //
               debugger
               //CHECK HERE IF data.recordings.length == 0. IF IT IS, THEN DON'T EXECUTE REST OF JOBS
               // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
@@ -127,7 +125,6 @@ app.get('/processCall', function(req, res) {
                 getAsyncResult(jobID, function(body) {
                   // debugger
                   if (body == 'failed') {
-                    // do something
                     createError(CallSid)
                   } else {
                     //continue
@@ -186,7 +183,6 @@ app.get('/processCall', function(req, res) {
               //
             //  console.log(recording.Sid)
             })
-            //
           } else { // if there is no recording yet
             Call.update({'CallSid': CallSid}, {
               processing: false
@@ -194,11 +190,9 @@ app.get('/processCall', function(req, res) {
 
             })
           }
-          //
         })
       }
     })
-    //
   })
 })
 
