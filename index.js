@@ -27,6 +27,8 @@ var hodClient = new havenondemand.HODClient(process.env.HOD_APIKEY)
 
 var twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 
+var languageObj ={'en-US-tel': {'regular': 'US English', 'sentiment-analysis': 'eng'}, 'en-GB-tel': {'regular': 'British English', 'sentiment-analysis': 'eng'}, 'es-ES-tel': {'regular': 'European Spanish', 'sentiment-analysis': 'spa'}, 'fr-FR-tel': {'regular': 'French', 'sentiment-analysis': 'fre'}}
+
 mongoose.connect(uristring, function (err, res) {
   if (err) {
   console.log ('ERROR connecting to: ' + uristring + '. ' + err);
@@ -43,6 +45,7 @@ var schema = new mongoose.Schema({
   indexed: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
+  language: String,
   ApiVersion: String,
   TranscriptionType: String,
   TranscriptionUrl: String,
@@ -97,8 +100,10 @@ app.get('/call/:CallSid', function(req, res) {
 
 app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
+  var language = req.query.language
   Call.update({'CallSid': CallSid}, {
-    processing: true
+    processing: true,
+    language: language
   }, function(err, numberAffected, rawResponse) {
     //
     twilioClient.calls(CallSid).get(function(err, call) {
@@ -117,7 +122,7 @@ app.get('/processCall', function(req, res) {
               //CHECK HERE IF data.recordings.length == 0. IF IT IS, THEN DON'T EXECUTE REST OF JOBS
               // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
               var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-              var data1 = {url: recordingUrl, language: 'en-US-tel'}
+              var data1 = {url: recordingUrl, language: language}
               // debugger
               hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
                 var jobID = resp1.body.jobID
@@ -134,7 +139,8 @@ app.get('/processCall', function(req, res) {
                       createError(CallSid)
                     } else {
                       // HOD stuff
-                      var data2 = {text: text}
+                      var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
+                      var data2 = {text: text, language: sentimentAnalysisLanguage}
                       hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                         // debugger
                         console.log("Analyzed sentiment")
@@ -185,7 +191,8 @@ app.get('/processCall', function(req, res) {
             })
           } else { // if there is no recording yet
             Call.update({'CallSid': CallSid}, {
-              processing: false
+              processing: false,
+              language: ''
             }, function(err, numberAffected, rawResponse) {
 
             })

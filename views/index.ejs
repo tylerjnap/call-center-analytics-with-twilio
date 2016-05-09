@@ -42,7 +42,8 @@
         <tr>
           <th>Call</th>
           <th>Call SID</th>
-          <th> </th>
+          <th>Process</th>
+          <th>Language</th>
         </tr>
       </thead>
       <tbody>
@@ -53,21 +54,32 @@
             <td><a href='call/<%= calls[i]['CallSid'] %>'>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></a></td>
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processed</button></td>
+            <td><%= calls[i]['language'] %></td>
           <!-- Currently processing -->
           <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-primary" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processing</button></td>
+            <td><%= calls[i]['language'] %></td>
           <!-- Error while processing -->
           <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error processing</button></td>
+            <td><%= calls[i]['language'] %></td>
           <!-- Have not begun processing -->
           <% } else { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td id='CallSid-<%= i %>'><%= calls[i]['CallSid'] %></td>
             <td><button type="submit" class="btn btn-primary" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Process</button></td>
+            <td>
+              <select name="language" class='<%= calls[i]['CallSid'] %>'>
+                <option value="en-US-tel">US English</option>
+                <option value="en-GB-tel">British English</option>
+                <option value="es-ES-tel">European Spanish</option>
+                <option value="fr-FR-tel">French</option>
+              </select>
+            </td>
           <% } %>
           <td></td>
         </tr>
@@ -80,8 +92,9 @@ function processCall(elem) {
   elem.disabled = "disabled"
   elem.innerText = "Processing"
   var CallSid = elem.id
+  var language = document.getElementsByClassName(CallSid)[0].value;
   $.ajax({
-    url: "/processCall?CallSid="+CallSid,
+    url: "/processCall?CallSid="+CallSid+"&language="+language,
     type: 'GET',
       success: function(res) {
         console.log(res);
