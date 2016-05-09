@@ -18,7 +18,7 @@ h3 {
   font-size: 18px;
 }
 
-.transcription-text {
+.transcription-text, .confidence, .language {
   color: black;
 }
 

@@ -13,6 +13,7 @@ var path = require('path')
 var bodyParser = require('body-parser')
 var urlencoded = bodyParser.urlencoded({extended: false})
 var mongoose = require('mongoose')
+var async = require('async')
 
 app.use(urlencoded)
 app.use(express.static(path.join(__dirname, 'public')))
@@ -45,6 +46,7 @@ var schema = new mongoose.Schema({
   indexed: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
+  confidence: Number,
   language: String,
   ApiVersion: String,
   TranscriptionType: String,
@@ -91,8 +93,10 @@ app.get('/call/:CallSid', function(req, res) {
     if (err) {
       return handleError(err)
     } else {
+      var language = languageObj[call.language]['regular']
       res.render('call', {
-        call: call
+        call: call,
+        language: language
       })
     }
   })
@@ -118,11 +122,11 @@ app.get('/processCall', function(req, res) {
           //
           if (data.recordings.length > 0) { //if there is a recording
             data.recordings.forEach(function(recording) {
-              debugger
+              // debugger
               //CHECK HERE IF data.recordings.length == 0. IF IT IS, THEN DON'T EXECUTE REST OF JOBS
               // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
               var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-              var data1 = {url: recordingUrl, language: language}
+              var data1 = {url: recordingUrl, language: language, interval: 0}
               // debugger
               hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
                 var jobID = resp1.body.jobID
@@ -133,56 +137,66 @@ app.get('/processCall', function(req, res) {
                     createError(CallSid)
                   } else {
                     //continue
-                    var text = body.actions[0].result.document[0].content
-                    console.log("Text: " + text)
-                    if (text == "") {
-                      createError(CallSid)
-                    } else {
-                      // HOD stuff
-                      var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
-                      var data2 = {text: text, language: sentimentAnalysisLanguage}
-                      hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
-                        // debugger
-                        console.log("Analyzed sentiment")
-                        var sentimentResponse = body2
-                        hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
+                    // var text = body.actions[0].result.document[0].content
+                    var textSnippets = body.actions[0].result.document
+                    //
+                    processText(textSnippets, function(textObj) {
+                      debugger
+                      var text = textObj.text
+                      var confidenceAggregate = textObj.aggregate
+                      //
+                      console.log("Text: " + text)
+                      if (text == "") {
+                        createError(CallSid)
+                      } else {
+                        // HOD stuff
+                        var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
+                        var data2 = {text: text, language: sentimentAnalysisLanguage}
+                        hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                           // debugger
-                          console.log("Extracted concepts")
-                          var conceptsResponse = body3
-                          var data3 = {
-                            index: "twiliocallcenter",
-                            json: JSON.stringify({
-                              document: [
-                                {
-                                  // title: counter.toString(),
-                                  // body: body
-                                  content: text,
-                                  // sentiments: sentimentResponse,
-                                  // concepts: conceptsResponse
-                                }
-                              ]
-                            })
-                          }
-                          hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
-                            // mongo
+                          console.log("Analyzed sentiment")
+                          var sentimentResponse = body2
+                          hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
                             // debugger
-                            Call.update({'CallSid': CallSid}, {
-                              text: text,
-                              concepts: conceptsResponse,
-                              sentiments: sentimentResponse,
-                              RecordingUrl: recordingUrl,
-                              TranscriptionText: text,
-                              indexed: true,
-                              processed: true
-                            }, function(err, numberAffected, rawResponse) {
-                              console.log("Processed")
+                            console.log("Extracted concepts")
+                            var conceptsResponse = body3
+                            var data3 = {
+                              index: "twiliocallcenter",
+                              json: JSON.stringify({
+                                document: [
+                                  {
+                                    // title: counter.toString(),
+                                    // body: body
+                                    content: text,
+                                    // sentiments: sentimentResponse,
+                                    // concepts: conceptsResponse
+                                  }
+                                ]
+                              })
+                            }
+                            hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
+                              // mongo
+                              // debugger
+                              Call.update({'CallSid': CallSid}, {
+                                text: text,
+                                concepts: conceptsResponse,
+                                sentiments: sentimentResponse,
+                                RecordingUrl: recordingUrl,
+                                TranscriptionText: text,
+                                indexed: true,
+                                processed: true,
+                                confidence: confidenceAggregate
+                              }, function(err, numberAffected, rawResponse) {
+                                console.log("Processed")
+                              })
+                              //
                             })
-                            //
                           })
                         })
-                      })
-                    }
-                    // HOD stuff
+                      }
+                      // HOD stuff
+                      //
+                    })
                   }
                 })
               })
@@ -216,6 +230,27 @@ function getAsyncResult(jobID, callback) {
       callback(body)
     }
   })
+}
+
+function processText(textSnippetsArray, callback) {
+  var oldAverage = 0
+  var newAverage
+  var counter = 1
+  var text = ''
+  async.each(textSnippetsArray, function(textInformation, c) {
+    debugger
+    var confidence = textInformation['confidence']
+    text += textInformation['content']
+    newAverage = oldAverage * (counter-1)/counter + confidence/counter;   // New average = old average * (n-1)/n + new value /n
+    oldAverage = newAverage; //set equal to new average for next go around of calling this function
+    counter += 1
+    console.log("Average: " + newAverage)
+    console.log("confidence: " + confidence)
+    if (counter > textSnippetsArray.length) {
+      callback({aggregate: newAverage, text: text})
+    }
+    text += ' '
+  }, function(err) {})
 }
 
 function createError(callSid) {

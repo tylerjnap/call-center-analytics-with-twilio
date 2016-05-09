@@ -46,6 +46,8 @@
       <div class="col-xs-12">
         <div class="well">
           <p class="transcription-text"><%= call['TranscriptionText'] %></p>
+          <p class="confidence">Transcription confidence: <%= Math.floor(call['confidence']) %>%</p>
+          <p class="language">Language: <%= language %></p>
           <audio controls>
             <source src=<%= call['RecordingUrl'] %> type="audio/mpeg">
           Your browser does not support the audio element.
