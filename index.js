@@ -82,6 +82,23 @@ app.get('/', function(req, res) {
   })
 })
 
+app.post('/search', function(req, res) {
+  debugger
+  var searchText = req.body.search
+  var data = {text: searchText, index: process.env.HOD_INDEX_NAME, print: 'all'}
+  hodClient.call('querytextindex', data, function(err, resp, body) {
+    if (resp) {
+      if (resp.body) {
+        debugger
+        var documents = resp.body.documents
+        res.render('search_results', {
+          calls: documents
+        })
+      }
+    }
+  })
+})
+
 app.get('/callcenter', function(req, res) {
   res.render('callcenter', {})
 })
@@ -114,6 +131,10 @@ app.get('/processCall', function(req, res) {
       if (err) {
         console.log(err)
       } else {
+        var To = call.to
+        var From = call.from
+        var dateCreated = call.date_created
+        console.log(call)
         twilioClient.recordings.get({
           callSid: CallSid,
         }, function(err, data) {
@@ -141,7 +162,7 @@ app.get('/processCall', function(req, res) {
                     var textSnippets = body.actions[0].result.document
                     //
                     processText(textSnippets, function(textObj) {
-                      debugger
+                      // debugger
                       var text = textObj.text
                       var confidenceAggregate = textObj.aggregate
                       //
@@ -160,20 +181,30 @@ app.get('/processCall', function(req, res) {
                             // debugger
                             console.log("Extracted concepts")
                             var conceptsResponse = body3
-                            var data3 = {
-                              index: "twiliocallcenter",
-                              json: JSON.stringify({
-                                document: [
-                                  {
-                                    // title: counter.toString(),
-                                    // body: body
-                                    content: text,
-                                    // sentiments: sentimentResponse,
-                                    // concepts: conceptsResponse
-                                  }
-                                ]
-                              })
+                            var json = {
+                              document: [
+                                {
+                                  // title: counter.toString(),
+                                  // body: body
+                                  content: text,
+                                  CallSid: CallSid,
+                                  // sentiments: sentimentResponse,
+                                  // concepts: conceptsResponse,
+                                  RecordingUrl: recordingUrl,
+                                  TranscriptionText: text,
+                                  confidence: confidenceAggregate,
+                                  From: From,
+                                  To: To,
+                                  date: dateCreated,
+                                  language: language
+                                }
+                              ]
                             }
+                            var data3 = {
+                              index: process.env.HOD_INDEX_NAME,
+                              json: JSON.stringify(json)
+                            }
+                            debugger
                             hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
                               // mongo
                               // debugger
@@ -238,7 +269,7 @@ function processText(textSnippetsArray, callback) {
   var counter = 1
   var text = ''
   async.each(textSnippetsArray, function(textInformation, c) {
-    debugger
+    // debugger
     var confidence = textInformation['confidence']
     text += textInformation['content']
     newAverage = oldAverage * (counter-1)/counter + confidence/counter;   // New average = old average * (n-1)/n + new value /n
