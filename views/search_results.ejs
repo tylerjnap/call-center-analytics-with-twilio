@@ -32,15 +32,19 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <h1>All your calls <A HREF="javascript:history.go(0)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></A></h1>
+    <h1>Search results</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <label for="search">Search</label>
   </div>
 </div>
 <div class="row">
   <div class="col-xs-12">
     <form action="/search" method="POST">
       <div class="form-group">
-        <label for="search">Search</label>
-        <input type="text" name="search" placeholder="I'm feeling great today!" id="search">
+        <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search">
       </div>
       <button type="submit" class="btn btn-default" id="search">Search</button>
     </form>
