@@ -48,6 +48,7 @@ var schema = new mongoose.Schema({
   sentiments: mongoose.Schema.Types.Mixed,
   confidence: Number,
   language: String,
+  indexReference: String,
   ApiVersion: String,
   TranscriptionType: String,
   TranscriptionUrl: String,
@@ -92,7 +93,26 @@ app.post('/search', function(req, res) {
         debugger
         var documents = resp.body.documents
         res.render('search_results', {
-          calls: documents
+          calls: documents,
+          api: 'Search results'
+        })
+      }
+    }
+  })
+})
+
+app.post('/findSimilar', function(req, res) {
+  debugger
+  var searchText = req.body.search
+  var data = {text: searchText, index: process.env.HOD_INDEX_NAME, print: 'all'}
+  hodClient.call('findsimilar', data, function(err, resp, body) {
+    if (resp) {
+      if (resp.body) {
+        debugger
+        var documents = resp.body.documents
+        res.render('search_results', {
+          calls: documents,
+          api: 'Similar calls'
         })
       }
     }
@@ -208,6 +228,7 @@ app.get('/processCall', function(req, res) {
                             hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
                               // mongo
                               // debugger
+                              var indexReference = resp3.body.references[0].reference
                               Call.update({'CallSid': CallSid}, {
                                 text: text,
                                 concepts: conceptsResponse,
@@ -216,7 +237,8 @@ app.get('/processCall', function(req, res) {
                                 TranscriptionText: text,
                                 indexed: true,
                                 processed: true,
-                                confidence: confidenceAggregate
+                                confidence: confidenceAggregate,
+                                indexReference: indexReference
                               }, function(err, numberAffected, rawResponse) {
                                 console.log("Processed")
                               })

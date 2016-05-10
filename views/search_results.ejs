@@ -32,7 +32,7 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <h1>Search results</h1>
+    <h1><%= api %></h1>
   </div>
 </div>
 <div class="row">
@@ -68,6 +68,8 @@
           <td id='CallSid-<%= i %>'><%= calls[i]['callsid'][0] %></td>
           <td><button type="submit" class="btn btn-success" id='<%= calls[i]['callsid'][0] %>' disabled="disabled">Processed</button></td>
           <td><%= calls[i]['language'][0] %></td>
+          <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['reference'] %>' onclick='findSimilar(this)'>Find Similar</button></td>
+
           <td></td>
         </tr>
       </tbody>
@@ -82,6 +84,18 @@ function processCall(elem) {
   var language = document.getElementsByClassName(CallSid)[0].value;
   $.ajax({
     url: "/processCall?CallSid="+CallSid+"&language="+language,
+    type: 'GET',
+      success: function(res) {
+        console.log(res);
+      }
+  });
+}
+
+function findSimilar(elem) {
+  //disable button
+  var indexReference = elem.id
+  $.ajax({
+    url: "/findSimilar?indexReference="+indexReference,
     type: 'GET',
       success: function(res) {
         console.log(res);
