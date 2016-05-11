@@ -139,46 +139,42 @@ app.get('/call/:CallSid', function(req, res) {
   })
 })
 
-app.get('/obtainAudio', function(req, res) {
-  var CallSid = req.query.CallSid
+function obtainAudio(CallSid) {
+  console.log("Obtaining audio")
   console.log(CallSid)
-  Call.update({'CallSid': CallSid}, {
-    obtainingAudio: true,
-  }, function(error1, numberAffected, rawResponse) {
-    if (!error1) {
-      twilioClient.calls(CallSid).get(function(err1, call) {
-        console.log(call)
-        if (err1) {
-          console.log(err1)
+  twilioClient.calls(CallSid).get(function(err1, call) {
+    console.log(call)
+    if (err1) {
+      console.log(err1)
+    } else {
+      var dateCreated = call.date_created
+      twilioClient.recordings.get({
+        callSid: CallSid,
+      }, function(err2, data) {
+        if (err2) {
+          console.log(err2)
         } else {
-          var dateCreated = call.date_created
-          twilioClient.recordings.get({
-            callSid: CallSid,
-          }, function(err2, data) {
-            if (err2) {
-              console.log(err2)
-            } else {
-              if (data.recordings.length > 0) { //if there is a recording
-                console.log(data.recordings)
-                data.recordings.forEach(function(recording) {
-                  debugger
-                  var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-                  Call.update({'CallSid': CallSid}, {
-                    audio: true,
-                    RecordingUrl: recordingUrl,
-                    dateCreated: dateCreated
-                  }, function(err, numberAffected, rawResponse) {
-                    res.redirect('/')
-                  })
-                })
-              }
-            }
-          })
+          if (data.recordings.length > 0) { //if there is a recording
+            console.log(data.recordings)
+            data.recordings.forEach(function(recording) {
+              debugger
+              var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+              Call.update({'CallSid': CallSid}, {
+                audio: true,
+                RecordingUrl: recordingUrl,
+                dateCreated: dateCreated
+              }, function(err, numberAffected, rawResponse) {
+                console.log("Audio file obtained for: " + CallSid)
+              })
+            })
+          } else {
+            obtainAudio(CallSid)
+          }
         }
       })
     }
   })
-})
+}
 
 app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
@@ -360,7 +356,13 @@ app.post('/makeCall', function(req, res) {
         callObj['To'] = call.to
         callObj['From'] = call.from
         var callMongo = new Call (callObj)
-        callMongo.save(function (err) {if (err) console.log ('Error on save!')})
+        callMongo.save(function (err) {
+          if (err)  {
+            console.log ('Error on save!')
+          } else { //loop to obtain audio
+            obtainAudio(call.sid)
+          }
+        })
       }
   })
   res.redirect('/')

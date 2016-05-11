@@ -59,8 +59,7 @@
           <th>Audio</th>
           <th>Download</th>
           <th>Language</th>
-          <th>Find Similar</th>
-          <th>Analyze</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -85,7 +84,6 @@
                 <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
               </form>
             </td>
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processed</button></td>
           <!-- Currently processing -->
           <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error'] && calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
@@ -99,8 +97,7 @@
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
             <td><%= calls[i]['language'] %></td>
-            <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
-            <td><button type="submit" class="btn btn-primary" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processing</button></td>
+            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
           <!-- Error while processing -->
           <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error'] && calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
@@ -114,8 +111,7 @@
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
             <td><%= calls[i]['language'] %></td>
-            <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
-            <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error processing</button></td>
+            <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
           <!-- Obtained audio but have no processed -->
           <% } else if (!calls[i]['processed'] && !calls[i]['processing'] && calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
@@ -136,10 +132,9 @@
                 <option value="fr-FR-tel">French</option>
               </select>
             </td>
-            <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Process Call</button></td>
-            <!-- Currenlty obtaining audio but not obtained yet -->
-          <% } else if (calls[i]['obtainingAudio'] && !calls[i]['audio']) { %>
+            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Analyze Call</button></td>
+            <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
+          <% } else if (!calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td>unavailable</td>
             <td>unavailable</td>
@@ -151,23 +146,9 @@
                 <option value="fr-FR-tel">French</option>
               </select>
             </td>
-            <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
             <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='obtainAudio(this)' disabled="disabled">Obtaining Audio</button></td>
           <!-- Have not obtained audio or processed -->
-          <% } else { %>
-            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
-            <td>unavailable</td>
-            <td>unavailable</td>
-            <td>
-              <select name="language" class='<%= calls[i]['CallSid'] %>' disabled="disabled">
-                <option value="en-US-tel">US English</option>
-                <option value="en-GB-tel">British English</option>
-                <option value="es-ES-tel">European Spanish</option>
-                <option value="fr-FR-tel">French</option>
-              </select>
-            </td>
-            <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='obtainAudio(this)'>Obtain Audio</button></td>
+
           <% } %>
         </tr>
       </tbody>
@@ -177,7 +158,7 @@
 function processCall(elem) {
   //disable button
   elem.disabled = "disabled"
-  elem.innerText = "Processing"
+  elem.innerText = "Analyzing Call"
   var CallSid = elem.id
   var language = document.getElementsByClassName(CallSid)[0].value;
   $.ajax({
