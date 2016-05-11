@@ -1,4 +1,5 @@
 var env = process.env.NODE_ENV || 'dev'
+var path = require('path')
 
 if (env == 'dev') {
   require('dotenv').load()
@@ -7,9 +8,9 @@ if (env == 'dev') {
   var twiMLUrl = path.join(__dirname, 'twilioVoice')
 }
 
+debugger
 var express = require('express')
 var app = express()
-var path = require('path')
 var bodyParser = require('body-parser')
 var urlencoded = bodyParser.urlencoded({extended: false})
 var mongoose = require('mongoose')
