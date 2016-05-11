@@ -4,7 +4,7 @@ if (env == 'dev') {
   require('dotenv').load()
   var twiMLUrl = "http://15087606.ngrok.io/twilioVoice"
 } else {
-  var twiMLUrl = path.join(__dirname, '/twilioVoice')
+  var twiMLUrl = path.join(__dirname, 'twilioVoice')
 }
 
 var express = require('express')
