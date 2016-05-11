@@ -57,6 +57,7 @@
         <tr>
           <th>Call</th>
           <th>Audio</th>
+          <th>Download</th>
           <th>Language</th>
           <th>Find Similar</th>
           <th>Weight</th>
@@ -71,6 +72,9 @@
               <source src='<%= calls[i]['recordingurl'] %>' type="audio/mpeg">
             Your browser does not support the audio element.
             </audio>
+          </td>
+          <td>
+            <a href='<%= calls[i]['recordingurl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
           </td>
           <td><%= calls[i]['language'][0] %></td>
           <td>

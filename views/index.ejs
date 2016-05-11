@@ -57,6 +57,7 @@
         <tr>
           <th>Call</th>
           <th>Audio</th>
+          <th>Download</th>
           <th>Language</th>
           <th>Find Similar</th>
           <th>Analyze</th>
@@ -73,6 +74,9 @@
                 <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
               Your browser does not support the audio element.
               </audio>
+            <td>
+              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+            </td>
             </td>
             <td><%= calls[i]['language'] %></td>
             <td>
@@ -91,6 +95,9 @@
               Your browser does not support the audio element.
               </audio>
             </td>
+            <td>
+              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+            </td>
             <td><%= calls[i]['language'] %></td>
             <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
             <td><button type="submit" class="btn btn-primary" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Processing</button></td>
@@ -103,6 +110,9 @@
               Your browser does not support the audio element.
               </audio>
             </td>
+            <td>
+              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+            </td>
             <td><%= calls[i]['language'] %></td>
             <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['indexReference'] %>' disabled="disabled">Find Similar</button></td>
             <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error processing</button></td>
@@ -114,6 +124,9 @@
                 <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
               Your browser does not support the audio element.
               </audio>
+            </td>
+            <td>
+              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
             <td>
               <select name="language" class='<%= calls[i]['CallSid'] %>'>
@@ -129,6 +142,7 @@
           <% } else if (calls[i]['obtainingAudio'] && !calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
             <td>unavailable</td>
+            <td>unavailable</td>
             <td>
               <select name="language" class='<%= calls[i]['CallSid'] %>' disabled="disabled">
                 <option value="en-US-tel">US English</option>
@@ -142,6 +156,7 @@
           <!-- Have not obtained audio or processed -->
           <% } else { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+            <td>unavailable</td>
             <td>unavailable</td>
             <td>
               <select name="language" class='<%= calls[i]['CallSid'] %>' disabled="disabled">
