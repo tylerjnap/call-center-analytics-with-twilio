@@ -32,7 +32,7 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <h1>Search</h1>
+    <h1>Similar Calls</h1>
   </div>
 </div>
 <div class="row">
@@ -59,6 +59,8 @@
           <th>Call SID</th>
           <th>Process</th>
           <th>Language</th>
+          <th>Find Similar</th>
+          <th>Weight</th>
         </tr>
       </thead>
       <tbody>
@@ -69,8 +71,7 @@
           <td><button type="submit" class="btn btn-success" id='<%= calls[i]['callsid'][0] %>' disabled="disabled">Processed</button></td>
           <td><%= calls[i]['language'][0] %></td>
           <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['reference'] %>' onclick='findSimilar(this)'>Find Similar</button></td>
-
-          <td></td>
+          <td><%= calls[i]['weight'] %></td>
         </tr>
       </tbody>
     <% } %>

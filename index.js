@@ -2,7 +2,7 @@ var env = process.env.NODE_ENV || 'dev'
 
 if (env == 'dev') {
   require('dotenv').load()
-  var twiMLUrl = "https://9fccd4b6.ngrok.io/twilioVoice"
+  var twiMLUrl = "http://15087606.ngrok.io/twilioVoice"
 } else {
   var twiMLUrl = path.join(__dirname, '/twilioVoice')
 }
@@ -93,26 +93,24 @@ app.post('/search', function(req, res) {
         debugger
         var documents = resp.body.documents
         res.render('search_results', {
-          calls: documents,
-          api: 'Search results'
+          calls: documents
         })
       }
     }
   })
 })
 
-app.post('/findSimilar', function(req, res) {
+app.get('/findSimilar', function(req, res) {
   debugger
-  var searchText = req.body.search
-  var data = {text: searchText, index: process.env.HOD_INDEX_NAME, print: 'all'}
+  var indexReference = req.query.indexReference
+  var data = {index_reference: indexReference, indexes: process.env.HOD_INDEX_NAME, print: 'all'}
   hodClient.call('findsimilar', data, function(err, resp, body) {
     if (resp) {
       if (resp.body) {
         debugger
         var documents = resp.body.documents
-        res.render('search_results', {
-          calls: documents,
-          api: 'Similar calls'
+        res.render('find_similar_results', {
+          calls: documents
         })
       }
     }
@@ -224,11 +222,11 @@ app.get('/processCall', function(req, res) {
                               index: process.env.HOD_INDEX_NAME,
                               json: JSON.stringify(json)
                             }
-                            debugger
+                            // debugger
                             hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
                               // mongo
                               // debugger
-                              var indexReference = resp3.body.references[0].reference
+                              var indexReference = resp4.body.references[0].reference
                               Call.update({'CallSid': CallSid}, {
                                 text: text,
                                 concepts: conceptsResponse,
