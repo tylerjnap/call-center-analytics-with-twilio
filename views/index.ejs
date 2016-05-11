@@ -124,6 +124,7 @@ function processCall(elem) {
 
 function findSimilar(elem) {
   //disable button
+  console.log(elem);
   var indexReference = elem.id
   $.ajax({
     url: "/findSimilar?indexReference="+indexReference,
