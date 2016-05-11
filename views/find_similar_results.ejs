@@ -44,7 +44,7 @@
   <div class="col-xs-12">
     <form action="/search" method="POST">
       <div class="form-group">
-        <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search">
+        <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search" required>
       </div>
       <button type="submit" class="btn btn-default" id="search">Search</button>
     </form>
@@ -56,8 +56,7 @@
       <thead>
         <tr>
           <th>Call</th>
-          <th>Call SID</th>
-          <th>Process</th>
+          <th>Audio</th>
           <th>Language</th>
           <th>Find Similar</th>
           <th>Weight</th>
@@ -67,10 +66,19 @@
         <% for (var i=0; i<calls.length; i++) { %>
         <tr>
           <td><a href='call/<%= calls[i]['callsid'][0] %>'>Call by <%= calls[i]['from'][0] %> to <%= calls[i]['to'][0] %> on <%= calls[i]['date'] %></a></td>
-          <td id='CallSid-<%= i %>'><%= calls[i]['callsid'][0] %></td>
-          <td><button type="submit" class="btn btn-success" id='<%= calls[i]['callsid'][0] %>' disabled="disabled">Processed</button></td>
+          <td>
+            <audio controls>
+              <source src='<%= calls[i]['recordingurl'] %>' type="audio/mpeg">
+            Your browser does not support the audio element.
+            </audio>
+          </td>
           <td><%= calls[i]['language'][0] %></td>
-          <td><button type="submit" class="btn btn-warning" id='<%= calls[i]['reference'] %>' onclick='findSimilar(this)'>Find Similar</button></td>
+          <td>
+            <form action="/findSimilar" method="GET">
+                <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
+              <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
+            </form>
+          </td>
           <td><%= calls[i]['weight'] %></td>
         </tr>
       </tbody>
@@ -92,17 +100,17 @@ function processCall(elem) {
   });
 }
 
-function findSimilar(elem) {
-  //disable button
-  var indexReference = elem.id
-  $.ajax({
-    url: "/findSimilar?indexReference="+indexReference,
-    type: 'GET',
-      success: function(res) {
-        console.log(res);
-      }
-  });
-}
+// function findSimilar(elem) {
+//   //disable button
+//   var indexReference = elem.id
+//   $.ajax({
+//     url: "/findSimilar?indexReference="+indexReference,
+//     type: 'GET',
+//       success: function(res) {
+//         console.log(res);
+//       }
+//   });
+// }
 
 $(window).load(function() {
 

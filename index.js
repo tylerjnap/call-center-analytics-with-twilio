@@ -44,6 +44,8 @@ var schema = new mongoose.Schema({
   processing: { type: Boolean, default: false },
   error: { type: Boolean, default: false },
   indexed: { type: Boolean, default: false },
+  audio: { type: Boolean, default: false },
+  obtainingAudio: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
   confidence: Number,
@@ -137,134 +139,161 @@ app.get('/call/:CallSid', function(req, res) {
   })
 })
 
+app.get('/obtainAudio', function(req, res) {
+  var CallSid = req.query.CallSid
+  console.log(CallSid)
+  Call.update({'CallSid': CallSid}, {
+    obtainingAudio: true,
+  }, function(error1, numberAffected, rawResponse) {
+    if (!error1) {
+      twilioClient.calls(CallSid).get(function(err1, call) {
+        console.log(call)
+        if (err1) {
+          console.log(err1)
+        } else {
+          var dateCreated = call.date_created
+          twilioClient.recordings.get({
+            callSid: CallSid,
+          }, function(err2, data) {
+            if (err2) {
+              console.log(err2)
+            } else {
+              if (data.recordings.length > 0) { //if there is a recording
+                console.log(data.recordings)
+                data.recordings.forEach(function(recording) {
+                  debugger
+                  var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
+                  Call.update({'CallSid': CallSid}, {
+                    audio: true,
+                    RecordingUrl: recordingUrl,
+                    dateCreated: dateCreated
+                  }, function(err, numberAffected, rawResponse) {
+                    res.redirect('/')
+                  })
+                })
+              }
+            }
+          })
+        }
+      })
+    }
+  })
+})
+
 app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
   var language = req.query.language
   Call.update({'CallSid': CallSid}, {
     processing: true,
     language: language
-  }, function(err, numberAffected, rawResponse) {
+  }, function(error1, numberAffected, rawResponse) {
     //
-    twilioClient.calls(CallSid).get(function(err, call) {
-      if (err) {
-        console.log(err)
-      } else {
-        var To = call.to
-        var From = call.from
-        var dateCreated = call.date_created
-        console.log(call)
-        twilioClient.recordings.get({
-          callSid: CallSid,
-        }, function(err, data) {
-          console.log("Obtained recordings")
-          console.log(data.recordings)
+    if (error1) {
+      console.log(err)
+    } else {
+      Call.findOne({ CallSid: CallSid }, function (error2, doc){
+        // doc.name = 'jason borne'
+        // doc.visits.$inc()
+        // doc.save()
+        if (error2) {
+
+        } else {
+          var recordingUrl = doc.RecordingUrl
+          var To = doc.To
+          var From = doc.From
+          var dateCreated = doc.dateCreated
           //
-          if (data.recordings.length > 0) { //if there is a recording
-            data.recordings.forEach(function(recording) {
+          var data1 = {url: recordingUrl, language: language, interval: 0}
+          // debugger
+          hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
+            var jobID = resp1.body.jobID
+            // debugger
+            getAsyncResult(jobID, function(body) {
               // debugger
-              //CHECK HERE IF data.recordings.length == 0. IF IT IS, THEN DON'T EXECUTE REST OF JOBS
-              // var recordingUrl = "https://"+process.env.TWILIO_ACCOUNT_SID+":"+process.env.TWILIO_AUTH_TOKEN+"@"+"api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-              var recordingUrl = "https://api.twilio.com"+recording.uri.split(".")[0]+".mp3"
-              var data1 = {url: recordingUrl, language: language, interval: 0}
-              // debugger
-              hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
-                var jobID = resp1.body.jobID
-                // debugger
-                getAsyncResult(jobID, function(body) {
+              if (body == 'failed') {
+                createError(CallSid)
+              } else {
+                //continue
+                // var text = body.actions[0].result.document[0].content
+                var textSnippets = body.actions[0].result.document
+                //
+                processText(textSnippets, function(textObj) {
                   // debugger
-                  if (body == 'failed') {
+                  var text = textObj.text
+                  var confidenceAggregate = textObj.aggregate
+                  //
+                  console.log("Text: " + text)
+                  if (text == "") {
                     createError(CallSid)
                   } else {
-                    //continue
-                    // var text = body.actions[0].result.document[0].content
-                    var textSnippets = body.actions[0].result.document
-                    //
-                    processText(textSnippets, function(textObj) {
+                    // HOD stuff
+                    var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
+                    var data2 = {text: text, language: sentimentAnalysisLanguage}
+                    hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                       // debugger
-                      var text = textObj.text
-                      var confidenceAggregate = textObj.aggregate
-                      //
-                      console.log("Text: " + text)
-                      if (text == "") {
-                        createError(CallSid)
-                      } else {
-                        // HOD stuff
-                        var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
-                        var data2 = {text: text, language: sentimentAnalysisLanguage}
-                        hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
+                      console.log("Analyzed sentiment")
+                      var sentimentResponse = body2
+                      hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
+                        // debugger
+                        console.log("Extracted concepts")
+                        var conceptsResponse = body3
+                        var json = {
+                          document: [
+                            {
+                              // title: counter.toString(),
+                              // body: body
+                              content: text,
+                              CallSid: CallSid,
+                              // sentiments: sentimentResponse,
+                              // concepts: conceptsResponse,
+                              RecordingUrl: recordingUrl,
+                              TranscriptionText: text,
+                              confidence: confidenceAggregate,
+                              From: From,
+                              To: To,
+                              date: dateCreated,
+                              language: language
+                            }
+                          ]
+                        }
+                        var data3 = {
+                          index: process.env.HOD_INDEX_NAME,
+                          json: JSON.stringify(json)
+                        }
+                        // debugger
+                        hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
+                          // mongo
                           // debugger
-                          console.log("Analyzed sentiment")
-                          var sentimentResponse = body2
-                          hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
-                            // debugger
-                            console.log("Extracted concepts")
-                            var conceptsResponse = body3
-                            var json = {
-                              document: [
-                                {
-                                  // title: counter.toString(),
-                                  // body: body
-                                  content: text,
-                                  CallSid: CallSid,
-                                  // sentiments: sentimentResponse,
-                                  // concepts: conceptsResponse,
-                                  RecordingUrl: recordingUrl,
-                                  TranscriptionText: text,
-                                  confidence: confidenceAggregate,
-                                  From: From,
-                                  To: To,
-                                  date: dateCreated,
-                                  language: language
-                                }
-                              ]
-                            }
-                            var data3 = {
-                              index: process.env.HOD_INDEX_NAME,
-                              json: JSON.stringify(json)
-                            }
-                            // debugger
-                            hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
-                              // mongo
-                              // debugger
-                              var indexReference = resp4.body.references[0].reference
-                              Call.update({'CallSid': CallSid}, {
-                                text: text,
-                                concepts: conceptsResponse,
-                                sentiments: sentimentResponse,
-                                RecordingUrl: recordingUrl,
-                                TranscriptionText: text,
-                                indexed: true,
-                                processed: true,
-                                confidence: confidenceAggregate,
-                                indexReference: indexReference
-                              }, function(err, numberAffected, rawResponse) {
-                                console.log("Processed")
-                              })
-                              //
-                            })
+                          var indexReference = resp4.body.references[0].reference
+                          Call.update({'CallSid': CallSid}, {
+                            text: text,
+                            concepts: conceptsResponse,
+                            sentiments: sentimentResponse,
+                            RecordingUrl: recordingUrl,
+                            TranscriptionText: text,
+                            indexed: true,
+                            processed: true,
+                            confidence: confidenceAggregate,
+                            indexReference: indexReference
+                          }, function(err, numberAffected, rawResponse) {
+                            console.log("Processed")
                           })
+                          //
                         })
-                      }
-                      // HOD stuff
-                      //
+                      })
                     })
                   }
+                  // HOD stuff
+                  //
                 })
-              })
-              //
-            //  console.log(recording.Sid)
+              }
             })
-          } else { // if there is no recording yet
-            Call.update({'CallSid': CallSid}, {
-              processing: false,
-              language: ''
-            }, function(err, numberAffected, rawResponse) {
+          })
+          //
 
-            })
-          }
-        })
-      }
-    })
+        }
+      })
+    }
   })
 })
 
