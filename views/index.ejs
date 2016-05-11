@@ -58,6 +58,7 @@
           <th>Call</th>
           <th>Audio</th>
           <th>Download</th>
+          <th>Sentiment</th>
           <th>Language</th>
           <th>Action</th>
         </tr>
@@ -76,6 +77,7 @@
             <td>
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
+            <td><%= calls[i]['sentiments']['aggregate']['sentiment'] %> / <%= Math.round(calls[i]['sentiments']['aggregate']['score']  * 100 ) %>% </td>
             </td>
             <td><%= calls[i]['language'] %></td>
             <td>
@@ -96,6 +98,7 @@
             <td>
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
+            <td>unavailable</td>
             <td><%= calls[i]['language'] %></td>
             <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
           <!-- Error while processing -->
@@ -110,6 +113,7 @@
             <td>
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
+            <td>unavailable</td>
             <td><%= calls[i]['language'] %></td>
             <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
           <!-- Obtained audio but have no processed -->
@@ -124,6 +128,7 @@
             <td>
               <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
             </td>
+            <td>unavaliable</td>
             <td>
               <select name="language" class='<%= calls[i]['CallSid'] %>'>
                 <option value="en-US-tel">US English</option>
@@ -136,6 +141,7 @@
             <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
           <% } else if (!calls[i]['audio']) { %>
             <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+            <td>unavailable</td>
             <td>unavailable</td>
             <td>unavailable</td>
             <td>

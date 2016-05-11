@@ -32,7 +32,7 @@
 
 <div class="row">
   <div class="col-xs-12">
-    <h1>Similar Calls</h1>
+    <h1>Search Calls</h1>
   </div>
 </div>
 <div class="row">
@@ -58,6 +58,7 @@
           <th>Call</th>
           <th>Audio</th>
           <th>Download</th>
+          <th>Sentiment</th>
           <th>Language</th>
           <th>Find Similar</th>
           <th>Weight</th>
@@ -76,6 +77,7 @@
           <td>
             <a href='<%= calls[i]['recordingurl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
           </td>
+          <td><%= calls[i]['aggregate_sentiment'] %> / <%= Math.round(calls[i]['aggregate_score'] * 100 ) %>% </td>
           <td><%= calls[i]['language'][0] %></td>
           <td>
             <form action="/findSimilar" method="GET">

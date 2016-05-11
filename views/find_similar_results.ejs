@@ -58,6 +58,7 @@
           <th>Call</th>
           <th>Audio</th>
           <th>Download</th>
+          <th>Sentiment</th>
           <th>Language</th>
           <th>Find Similar</th>
           <th>Weight</th>
@@ -76,10 +77,11 @@
           <td>
             <a href='<%= calls[i]['recordingurl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
           </td>
+          <td><%= calls[i]['aggregate_sentiment'] %> / <%= Math.round(calls[i]['aggregate_score'] * 100 ) %>% </td>
           <td><%= calls[i]['language'][0] %></td>
           <td>
             <form action="/findSimilar" method="GET">
-                <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
+              <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
               <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
             </form>
           </td>

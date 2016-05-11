@@ -179,6 +179,7 @@ function obtainAudio(CallSid) {
 app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
   var language = req.query.language
+  console.log("Processing call: " + CallSid)
   Call.update({'CallSid': CallSid}, {
     processing: true,
     language: language
@@ -229,6 +230,8 @@ app.get('/processCall', function(req, res) {
                       // debugger
                       console.log("Analyzed sentiment")
                       var sentimentResponse = body2
+                      var aggregateSentiment = resp2.body.aggregate.sentiment
+                      var aggregateScore = resp2.body.aggregate.score
                       hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
                         // debugger
                         console.log("Extracted concepts")
@@ -241,6 +244,8 @@ app.get('/processCall', function(req, res) {
                               content: text,
                               CallSid: CallSid,
                               // sentiments: sentimentResponse,
+                              aggregate_sentiment: aggregateSentiment,
+                              aggregate_score: aggregateScore,
                               // concepts: conceptsResponse,
                               RecordingUrl: recordingUrl,
                               TranscriptionText: text,
