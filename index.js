@@ -3,7 +3,7 @@ var path = require('path')
 
 if (env == 'dev') {
   require('dotenv').load()
-  var twiMLUrl = "http://15087606.ngrok.io/twilioVoice"
+  var twiMLUrl = "http://01c7d74d.ngrok.io/twilioVoice"
 } else {
   // var twiMLUrl = path.join(__dirname, 'twilioVoice')
   var twiMLUrl = "https://callcenteranalytics.herokuapp.com/twilioVoice"
@@ -50,6 +50,8 @@ var schema = new mongoose.Schema({
   obtainingAudio: { type: Boolean, default: false },
   concepts: mongoose.Schema.Types.Mixed,
   sentiments: mongoose.Schema.Types.Mixed,
+  entities: mongoose.Schema.Types.Mixed,
+  entitiesSelected: [],
   confidence: Number,
   language: String,
   indexReference: String,
@@ -179,12 +181,15 @@ function obtainAudio(CallSid) {
 }
 
 app.get('/processCall', function(req, res) {
+  debugger
   var CallSid = req.query.CallSid
   var language = req.query.language
+  var entityType = req.query.entity_type
   console.log("Processing call: " + CallSid)
   Call.update({'CallSid': CallSid}, {
     processing: true,
-    language: language
+    language: language,
+    entitiesSelected: entityType
   }, function(error1, numberAffected, rawResponse) {
     //
     if (error1) {
@@ -238,48 +243,57 @@ app.get('/processCall', function(req, res) {
                         // debugger
                         console.log("Extracted concepts")
                         var conceptsResponse = body3
-                        var json = {
-                          document: [
-                            {
-                              // title: counter.toString(),
-                              // body: body
-                              content: text,
-                              CallSid: CallSid,
-                              // sentiments: sentimentResponse,
-                              aggregate_sentiment: aggregateSentiment,
-                              aggregate_score: aggregateScore,
-                              // concepts: conceptsResponse,
+                        var data3 = {text: text, entity_type: entityType}
+                        hodClient.call('extractentities', data3, function(err4, resp4, body4) {
+                          console.log("Extracted entities")
+                          var entityResponse = body4
+                          //
+                          //
+                          var json = {
+                            document: [
+                              {
+                                // title: counter.toString(),
+                                // body: body
+                                content: text,
+                                CallSid: CallSid,
+                                // sentiments: sentimentResponse,
+                                aggregate_sentiment: aggregateSentiment,
+                                aggregate_score: aggregateScore,
+                                // concepts: conceptsResponse,
+                                RecordingUrl: recordingUrl,
+                                TranscriptionText: text,
+                                confidence: confidenceAggregate,
+                                From: From,
+                                To: To,
+                                date: dateCreated,
+                                language: language
+                              }
+                            ]
+                          }
+                          var data4 = {
+                            index: process.env.HOD_INDEX_NAME,
+                            json: JSON.stringify(json)
+                          }
+                          // debugger
+                          hodClient.call('addtotextindex', data4, function(err5, resp5, body5) {
+                            // mongo
+                            // debugger
+                            var indexReference = resp5.body.references[0].reference
+                            Call.update({'CallSid': CallSid}, {
+                              text: text,
+                              concepts: conceptsResponse,
+                              sentiments: sentimentResponse,
+                              entities: entityResponse,
                               RecordingUrl: recordingUrl,
                               TranscriptionText: text,
+                              indexed: true,
+                              processed: true,
                               confidence: confidenceAggregate,
-                              From: From,
-                              To: To,
-                              date: dateCreated,
-                              language: language
-                            }
-                          ]
-                        }
-                        var data3 = {
-                          index: process.env.HOD_INDEX_NAME,
-                          json: JSON.stringify(json)
-                        }
-                        // debugger
-                        hodClient.call('addtotextindex', data3, function(err4, resp4, body4) {
-                          // mongo
-                          // debugger
-                          var indexReference = resp4.body.references[0].reference
-                          Call.update({'CallSid': CallSid}, {
-                            text: text,
-                            concepts: conceptsResponse,
-                            sentiments: sentimentResponse,
-                            RecordingUrl: recordingUrl,
-                            TranscriptionText: text,
-                            indexed: true,
-                            processed: true,
-                            confidence: confidenceAggregate,
-                            indexReference: indexReference
-                          }, function(err, numberAffected, rawResponse) {
-                            console.log("Processed")
+                              indexReference: indexReference
+                            }, function(err, numberAffected, rawResponse) {
+                              console.log("Processed")
+                            })
+                            //
                           })
                           //
                         })
