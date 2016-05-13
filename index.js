@@ -22,6 +22,13 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
+// app.locals({
+//   makeTable  : function(obj) {
+//     var template = fs.readFileSync('makeList.ejs', 'utf-8')
+//     return ejs.render(template, list)
+//   }
+// })
+
 var port = process.env.PORT || 5000
 var uristring = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/test'
 

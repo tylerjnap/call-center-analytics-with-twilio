@@ -65,6 +65,7 @@
     <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
       <li class="active"><a href="#sentiments" data-toggle="tab">Sentiments</a></li>
       <li><a href="#concepts" data-toggle="tab">Concepts</a></li>
+      <li><a href="#entities" data-toggle="tab">Entites</a></li>
     </ul>
     <!-- Tab content -->
     <div id="my-tab-content" class="tab-content">
@@ -164,9 +165,9 @@
       </div>
       <div class="tab-pane" id="concepts">
         <h4>Concepts</h4>
-        <div class="col">
+        <div class="col-xs-12">
           <div class="row">
-            <div class="wordcloud"/>
+            <div class="wordcloud"></div>
           </div>
         </div>
         <% if(call['concepts']['concepts'].length > 0) { %>
@@ -194,11 +195,77 @@
           <p>No concepts</p>
         <% } %>
       </div>
+      <!-- Entities -->
+      <div class="tab-pane" id="entities">
+        <h4>Entities</h4>
+        <% if(call['entities']['entities'].length > 0) { %>
+            <div class="row">
+              <div class="col-xs-12">
+                <table class="table" id="entities-table">
+                  <thead>
+                    <tr>
+                      <th>Entity</th>
+                      <th>Type</th>
+                      <th>Additional Information</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (var i=0; i<call['entities']['entities'].length; i++) { %>
+                      <% var entity = call['entities']['entities'][i] %>
+                      <tr>
+                        <td><%= entity['normalized_text'] %></td>
+                        <td><%= entity['type'] %></td>
+                        <!-- Additional Information -->
+                        <td>
+                          <div class="row">
+                            <div class="col-xs-12">
+                              <table class="table" id="<%= entity['normalized_text'] %>-table">
+                                <thead>
+                                  <tr>
+                                    <th></th>
+                                    <th></th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% var additional_information = entity['additional_information'] %>
+                                  <% for (var key in additional_information) { %>
+                                    <tr>
+                                      <td><%= key %></td>
+                                      <% if (typeof(additional_information[key]) == 'array') { %>
+                                        <ul>
+                                        <% for (var j=0; j<additional_information[key].length; j++) { %>
+                                          <li><%= additional_information[key][j] %></li>
+                                        <% } %>
+                                        </ul>
+                                      <% } else { %>
+                                        <td><%= additional_information[key] %></td>
+                                      <% } %>
+                                    </tr>
+                                  <% } %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- End Additional INformation -->
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+        <% } else { %>
+          <p>No entites</p>
+        <% } %>
+      </div>
     </div>
-    <!-- End Tab content -->
+  </div>
+  <!-- End Entities  -->
+  <!-- End Tab content -->
   </div>
   <!-- End right side -->
 </div>
+
 <script type="text/javascript">
     $(document).ready(function ($) {
         $('#tabs').tab();

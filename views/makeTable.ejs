@@ -1,0 +1,19 @@
+<table class="table" id="entities-table">
+  <thead>
+    <tr>
+      <th>Entity</th>
+      <th>Information</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for (var i=0; i<call['entities']['entities'].length; i++) { %>
+      <tr>
+        <td><%= call['entities']['entities'][i]['original_text'] %></td>
+        <% if(call['entities']['entities'][i]['additional_information'] ) { %>
+          <td>
+          </td>
+        <% } %>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
