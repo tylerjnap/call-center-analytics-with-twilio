@@ -103,8 +103,12 @@ app.post('/search', function(req, res) {
   hodClient.call('querytextindex', data, function(err, resp, body) {
     if (resp) {
       if (resp.body) {
-        debugger
-        var documents = resp.body.documents
+        if (resp.body.status == 'failed') {
+          var documents = []
+        } else {
+          debugger
+          var documents = resp.body.documents
+        }
         res.render('search_results', {
           calls: documents
         })
