@@ -329,7 +329,12 @@ function processCall(elem) {
   elem.innerText = "Analyzing Call";
   var CallSid = elem.id;
   var language = document.getElementsByClassName(CallSid)[0].value;
-  var entity_fields = $('#entity_type-'+CallSid+' option:selected');
+  var entity_types = $('#entity_type-'+CallSid+' option:selected');
+  if (entity_types.length > 60) {
+    var entity_fields = entity_types.splice(0, 60);
+  } else {
+    var entity_fields = entity_types;
+  }
   var entity_type = [];
   var entityTypeRequestUrl = ''
   async.each(entity_fields, function(entity_field, callback) {
