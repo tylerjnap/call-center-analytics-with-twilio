@@ -325,21 +325,25 @@
 function processCall(elem) {
   //disable button
   var counter = 0;
-  elem.disabled = "disabled";
-  elem.innerText = "Analyzing Call";
   var CallSid = elem.id;
   var language = document.getElementsByClassName(CallSid)[0].value;
   var entity_types = $('#entity_type-'+CallSid+' option:selected');
   if (entity_types.length > 60) {
-    var entity_fields = entity_types.splice(0, 60);
+    alert('Too many entities selected. Please select no more than 60.');
+    return 0;
+  } else if (entity_types.length == 0) {
+    alert('Please select at least 1 entity to extract');
+    return 0;
   } else {
     var entity_fields = entity_types;
+    elem.disabled = "disabled";
+    elem.innerText = "Analyzing Call";
   }
   var entity_type = [];
-  var entityTypeRequestUrl = ''
+  var entityTypeRequestUrl = '';
   async.each(entity_fields, function(entity_field, callback) {
     var entity_type = entity_field.value;
-    entityTypeRequestUrl += '&entity_type='+entity_type
+    entityTypeRequestUrl += '&entity_type='+entity_type;
     counter += 1;
     if (counter >= entity_fields.length) {
       $.ajax({
