@@ -67,13 +67,46 @@
   <!-- Right side -->
   <div class="col-xs-6">
     <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
-      <li class="active"><a href="#sentiments" data-toggle="tab">Sentiments</a></li>
-      <li><a href="#concepts" data-toggle="tab">Concepts</a></li>
+      <li class="active"><a href="#concepts" data-toggle="tab">Concepts</a></li>
+      <li><a href="#sentiments" data-toggle="tab">Sentiments</a></li>
       <li><a href="#entities" data-toggle="tab">Entites</a></li>
     </ul>
     <!-- Tab content -->
     <div id="my-tab-content" class="tab-content">
-      <div class="tab-pane active" id="sentiments">
+      <!-- Entities  -->
+      <div class="tab-pane active" id="concepts">
+        <h4>Concepts</h4>
+        <div class="col-xs-12">
+          <div class="row">
+            <div id="concepts-wordcloud"></div>
+          </div>
+        </div>
+        <% if(call['concepts']['concepts'].length > 0) { %>
+            <div class="row">
+              <div class="col-xs-12">
+                <table class="table" id="concepts-table">
+                  <thead>
+                    <tr>
+                      <th>Concept</th>
+                      <th>Occurrences</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (var i=0; i<call['concepts']['concepts'].length; i++) { %>
+                      <tr>
+                        <td><%= call['concepts']['concepts'][i]['concept'] %></td>
+                        <td><%= call['concepts']['concepts'][i]['occurrences'] %></td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+        <% } else { %>
+          <p>No concepts</p>
+        <% } %>
+      </div>
+      <div class="tab-pane" id="sentiments">
         <div class="row">
           <div class="col-xs-12">
             <div class="sentiments-wordcloud">
@@ -173,38 +206,6 @@
           <p>No negative sentiments</p>
         <% } %>
         <!-- /Negative -->
-      </div>
-      <div class="tab-pane" id="concepts">
-        <h4>Concepts</h4>
-        <div class="col-xs-12">
-          <div class="row">
-            <div id="concepts-wordcloud"></div>
-          </div>
-        </div>
-        <% if(call['concepts']['concepts'].length > 0) { %>
-            <div class="row">
-              <div class="col-xs-12">
-                <table class="table" id="concepts-table">
-                  <thead>
-                    <tr>
-                      <th>Concept</th>
-                      <th>Occurrences</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% for (var i=0; i<call['concepts']['concepts'].length; i++) { %>
-                      <tr>
-                        <td><%= call['concepts']['concepts'][i]['concept'] %></td>
-                        <td><%= call['concepts']['concepts'][i]['occurrences'] %></td>
-                      </tr>
-                    <% } %>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-        <% } else { %>
-          <p>No concepts</p>
-        <% } %>
       </div>
       <!-- Entities -->
       <div class="tab-pane" id="entities">
@@ -307,7 +308,7 @@
           $('#concepts-wordcloud').jQCloud(frequencyList, {
             autoResize: true,
             width: width,
-            height: 320
+            height: 150
           });
         }
       }, function(err) {
