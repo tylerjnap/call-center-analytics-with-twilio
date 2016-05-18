@@ -303,7 +303,7 @@
           var size = row.children[1].innerText;
           // frequencyList.push({"text": text, "size": size});
           // data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content
-          frequencyList.push({"text": text, "weight": size, "html": {"data-toggle": "popover", "data-original-title": "Weight", "data-trigger": "hover", "rel": "popover", "data-content": size}});
+          frequencyList.push({"text": text, "weight": size, "html": {"data-toggle": "popover", "data-original-title": text, "data-trigger": "hover", "rel": "popover", "data-content": "occurrences: "+size}});
         }
         counter += 1;
         if (counter >= conceptsRows.length) {
