@@ -96,6 +96,12 @@ app.get('/', function(req, res) {
   })
 })
 
+app.get('/about', function(req, res) {
+  res.render('about', {
+
+  })
+})
+
 app.post('/search', function(req, res) {
   debugger
   var searchText = req.body.search
