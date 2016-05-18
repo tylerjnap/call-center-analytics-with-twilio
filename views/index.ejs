@@ -30,296 +30,297 @@
   </nav>
 
 
-
-<div class="row">
-  <div class="col-xs-12">
-    <h1>All your calls <A HREF="javascript:history.go(0)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></A></h1>
+<section id='content'>
+  <div class="row">
+    <div class="col-xs-12">
+      <h1>All your calls <A HREF="javascript:history.go(0)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></A></h1>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <label for="search">Search</label>
+  <div class="row">
+    <div class="col-xs-12">
+      <label for="search">Search</label>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <form action="/search" method="POST">
-      <div class="form-group">
-        <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search" required>
-      </div>
-      <button type="submit" class="btn btn-default" id="search">Search</button>
-    </form>
+  <div class="row">
+    <div class="col-xs-12">
+      <form action="/search" method="POST">
+        <div class="form-group">
+          <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search" required>
+        </div>
+        <button type="submit" class="btn btn-default" id="search">Search</button>
+      </form>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <table class="table" id="callTable">
-      <thead>
-        <tr>
-          <th>Call</th>
-          <th>Audio</th>
-          <th>Download</th>
-          <th>Sentiment</th>
-          <th>Language</th>
-          <th>Entities</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for (var i=0; i<calls.length; i++) { %>
-        <tr>
-          <!-- Completed processed -->
-          <% if (calls[i]['processed'] && calls[i]['processing'] && calls[i]['audio']) { %>
-            <td><a href='call/<%= calls[i]['CallSid'] %>'>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></a></td>
-            <td>
-              <audio controls>
-                <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
-              Your browser does not support the audio element.
-              </audio>
-            <td>
-              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
-            </td>
-            <td><%= calls[i]['sentiments']['aggregate']['sentiment'] %> / <%= Math.round(calls[i]['sentiments']['aggregate']['score']  * 100 ) %>% </td>
-            </td>
-            <td><%= calls[i]['language'] %></td>
-            <td>
-              <ul>
-                <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
-                  <li><%= calls[i]['entitiesSelected'][j] %></li>
-                <% } %>
-              </ul>
-            </td>
-            <td>
-              <form action="/findSimilar" method="GET">
-                  <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
-                <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
-              </form>
-            </td>
-          <!-- Currently processing -->
-          <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error'] && calls[i]['audio']) { %>
-            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
-            <td>
-              <audio controls>
-                <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
-              Your browser does not support the audio element.
-              </audio>
-            </td>
-            <td>
-              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
-            </td>
-            <td>unavailable</td>
-            <td><%= calls[i]['language'] %></td>
-            <td>
-              <ul>
-                <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
-                  <li><%= calls[i]['entitiesSelected'][j] %></li>
-                <% } %>
-              </ul>
-            </td>
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
-          <!-- Error while processing -->
-          <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error'] && calls[i]['audio']) { %>
-            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
-            <td>
-              <audio controls>
-                <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
-              Your browser does not support the audio element.
-              </audio>
-            </td>
-            <td>
-              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
-            </td>
-            <td>unavailable</td>
-            <td><%= calls[i]['language'] %></td>
-            <td>
-              <ul>
-                <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
-                  <li><%= calls[i]['entitiesSelected'][j] %></li>
-                <% } %>
-              </ul>
-            </td>
-            <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
-          <!-- Obtained audio but have not processed -->
-          <% } else if (!calls[i]['processed'] && !calls[i]['processing'] && calls[i]['audio']) { %>
-            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
-            <td>
-              <audio controls>
-                <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
-              Your browser does not support the audio element.
-              </audio>
-            </td>
-            <td>
-              <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
-            </td>
-            <td>unavaliable</td>
-            <td>
-              <select name="language" class='<%= calls[i]['CallSid'] %>'>
-                <option value="en-US-tel">US English</option>
-                <option value="en-GB-tel">British English</option>
-                <option value="es-ES-tel">European Spanish</option>
-                <option value="fr-FR-tel">French</option>
-              </select>
-            </td>
-            <!--  -->
-            <td>
-              <select multiple class='entity_type-<%= calls[i]['CallSid'] %>' id='entity_type-<%= calls[i]['CallSid'] %>' name="entity_type">
+  <div class="row">
+    <div class="col-xs-12">
+      <table class="table" id="callTable">
+        <thead>
+          <tr>
+            <th>Call</th>
+            <th>Audio</th>
+            <th>Download</th>
+            <th>Sentiment</th>
+            <th>Language</th>
+            <th>Entities</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var i=0; i<calls.length; i++) { %>
+          <tr>
+            <!-- Completed processed -->
+            <% if (calls[i]['processed'] && calls[i]['processing'] && calls[i]['audio']) { %>
+              <td><a href='call/<%= calls[i]['CallSid'] %>'>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></a></td>
+              <td>
+                <audio controls>
+                  <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
+                Your browser does not support the audio element.
+                </audio>
+              <td>
+                <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+              </td>
+              <td><%= calls[i]['sentiments']['aggregate']['sentiment'] %> / <%= Math.round(calls[i]['sentiments']['aggregate']['score']  * 100 ) %>% </td>
+              </td>
+              <td><%= calls[i]['language'] %></td>
+              <td>
+                <ul>
+                  <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
+                    <li><%= calls[i]['entitiesSelected'][j] %></li>
+                  <% } %>
+                </ul>
+              </td>
+              <td>
+                <form action="/findSimilar" method="GET">
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                  <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
+                </form>
+              </td>
+            <!-- Currently processing -->
+            <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error'] && calls[i]['audio']) { %>
+              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>
+                <audio controls>
+                  <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
+                Your browser does not support the audio element.
+                </audio>
+              </td>
+              <td>
+                <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+              </td>
+              <td>unavailable</td>
+              <td><%= calls[i]['language'] %></td>
+              <td>
+                <ul>
+                  <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
+                    <li><%= calls[i]['entitiesSelected'][j] %></li>
+                  <% } %>
+                </ul>
+              </td>
+              <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
+            <!-- Error while processing -->
+            <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error'] && calls[i]['audio']) { %>
+              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>
+                <audio controls>
+                  <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
+                Your browser does not support the audio element.
+                </audio>
+              </td>
+              <td>
+                <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+              </td>
+              <td>unavailable</td>
+              <td><%= calls[i]['language'] %></td>
+              <td>
+                <ul>
+                  <% for (var j=0; j<calls[i]['entitiesSelected'].length; j++) { %>
+                    <li><%= calls[i]['entitiesSelected'][j] %></li>
+                  <% } %>
+                </ul>
+              </td>
+              <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
+            <!-- Obtained audio but have not processed -->
+            <% } else if (!calls[i]['processed'] && !calls[i]['processing'] && calls[i]['audio']) { %>
+              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>
+                <audio controls>
+                  <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
+                Your browser does not support the audio element.
+                </audio>
+              </td>
+              <td>
+                <a href='<%= calls[i]['RecordingUrl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+              </td>
+              <td>unavaliable</td>
+              <td>
+                <select name="language" class='<%= calls[i]['CallSid'] %>'>
+                  <option value="en-US-tel">US English</option>
+                  <option value="en-GB-tel">British English</option>
+                  <option value="es-ES-tel">European Spanish</option>
+                  <option value="fr-FR-tel">French</option>
+                </select>
+              </td>
+              <!--  -->
+              <td>
+                <select multiple class='entity_type-<%= calls[i]['CallSid'] %>' id='entity_type-<%= calls[i]['CallSid'] %>' name="entity_type">
 
-                <option data-subtext="Notable People (English-Language)" name="people_eng" value="people_eng">people_eng</option>
+                  <option data-subtext="Notable People (English-Language)" name="people_eng" value="people_eng">people_eng</option>
 
-                <option data-subtext="Place Names (English-Language)" name="places_eng" value="places_eng">places_eng</option>
+                  <option data-subtext="Place Names (English-Language)" name="places_eng" value="places_eng">places_eng</option>
 
-                <option data-subtext="Company Names (English-Language)" name="companies_eng" value="companies_eng">companies_eng</option>
+                  <option data-subtext="Company Names (English-Language)" name="companies_eng" value="companies_eng">companies_eng</option>
 
-                <option data-subtext="Organization Names" name="organizations" value="organizations">organizations</option>
+                  <option data-subtext="Organization Names" name="organizations" value="organizations">organizations</option>
 
-                <option data-subtext="Languages" name="languages" value="languages">languages</option>
+                  <option data-subtext="Languages" name="languages" value="languages">languages</option>
 
-                <option data-subtext="Pharmaceutical Drug Names" name="drugs_eng" value="drugs_eng">drugs_eng</option>
+                  <option data-subtext="Pharmaceutical Drug Names" name="drugs_eng" value="drugs_eng">drugs_eng</option>
 
-                <option data-subtext="Professions" name="professions" value="professions">professions</option>
+                  <option data-subtext="Professions" name="professions" value="professions">professions</option>
 
-                <option data-subtext="Universities" name="universities" value="universities">universities</option>
+                  <option data-subtext="Universities" name="universities" value="universities">universities</option>
 
-                <option data-subtext="Profanities and Compliance" name="profanities" value="profanities">profanities</option>
+                  <option data-subtext="Profanities and Compliance" name="profanities" value="profanities">profanities</option>
 
-                <option data-subtext="Films" name="films" value="films">films</option>
+                  <option data-subtext="Films" name="films" value="films">films</option>
 
-                <option data-subtext="Australian Addresses" name="address_au" value="address_au">address_au</option>
+                  <option data-subtext="Australian Addresses" name="address_au" value="address_au">address_au</option>
 
-                <option data-subtext="Canadian Addresses" name="address_ca" value="address_ca">address_ca</option>
+                  <option data-subtext="Canadian Addresses" name="address_ca" value="address_ca">address_ca</option>
 
-                <option data-subtext="German Addresses" name="address_de" value="address_de">address_de</option>
+                  <option data-subtext="German Addresses" name="address_de" value="address_de">address_de</option>
 
-                <option data-subtext="Spanish Addresses" name="address_es" value="address_es">address_es</option>
+                  <option data-subtext="Spanish Addresses" name="address_es" value="address_es">address_es</option>
 
-                <option data-subtext="French Addresses" name="address_fr" value="address_fr">address_fr</option>
+                  <option data-subtext="French Addresses" name="address_fr" value="address_fr">address_fr</option>
 
-                <option data-subtext="UK Addresses" name="address_gb" value="address_gb">address_gb</option>
+                  <option data-subtext="UK Addresses" name="address_gb" value="address_gb">address_gb</option>
 
-                <option data-subtext="Italian Addresses" name="address_it" value="address_it">address_it</option>
+                  <option data-subtext="Italian Addresses" name="address_it" value="address_it">address_it</option>
 
-                <option data-subtext="US Addresses" name="address_us" value="address_us">address_us</option>
+                  <option data-subtext="US Addresses" name="address_us" value="address_us">address_us</option>
 
-                <option data-subtext="Chinese Addresses" name="address_zh" value="address_zh">address_zh</option>
+                  <option data-subtext="Chinese Addresses" name="address_zh" value="address_zh">address_zh</option>
 
-                <option data-subtext="Person Full Name (English-Langauge)" name="person_fullname_eng" value="person_fullname_eng">person_fullname_eng</option>
+                  <option data-subtext="Person Full Name (English-Langauge)" name="person_fullname_eng" value="person_fullname_eng">person_fullname_eng</option>
 
-                <option data-subtext="Person Name components (English-Language)" name="person_name_component_eng" value="person_name_component_eng">person_name_component_eng</option>
+                  <option data-subtext="Person Name components (English-Language)" name="person_name_component_eng" value="person_name_component_eng">person_name_component_eng</option>
 
-                <option data-subtext="Personal Identifying Information" name="pii" value="pii">pii</option>
+                  <option data-subtext="Personal Identifying Information" name="pii" value="pii">pii</option>
 
-                <option data-subtext="Extended Personal Identifying Information" name="pii_ext" value="pii_ext">pii_ext</option>
+                  <option data-subtext="Extended Personal Identifying Information" name="pii_ext" value="pii_ext">pii_ext</option>
 
-                <option data-subtext="Australian Phone Numbers" name="number_phone_au" value="number_phone_au">number_phone_au</option>
+                  <option data-subtext="Australian Phone Numbers" name="number_phone_au" value="number_phone_au">number_phone_au</option>
 
-                <option data-subtext="Canadian Phone Numbers" name="number_phone_ca" value="number_phone_ca">number_phone_ca</option>
+                  <option data-subtext="Canadian Phone Numbers" name="number_phone_ca" value="number_phone_ca">number_phone_ca</option>
 
-                <option data-subtext="UK Phone Numbers" name="number_phone_gb" value="number_phone_gb">number_phone_gb</option>
+                  <option data-subtext="UK Phone Numbers" name="number_phone_gb" value="number_phone_gb">number_phone_gb</option>
 
-                <option data-subtext="US Phone Numbers" name="number_phone_us" value="number_phone_us">number_phone_us</option>
+                  <option data-subtext="US Phone Numbers" name="number_phone_us" value="number_phone_us">number_phone_us</option>
 
-                <option data-subtext="German Phone Numbers" name="number_phone_de" value="number_phone_de">number_phone_de</option>
+                  <option data-subtext="German Phone Numbers" name="number_phone_de" value="number_phone_de">number_phone_de</option>
 
-                <option data-subtext="French Phone Numbers" name="number_phone_fr" value="number_phone_fr">number_phone_fr</option>
+                  <option data-subtext="French Phone Numbers" name="number_phone_fr" value="number_phone_fr">number_phone_fr</option>
 
-                <option data-subtext="Italian Phone Numbers" name="number_phone_it" value="number_phone_it">number_phone_it</option>
+                  <option data-subtext="Italian Phone Numbers" name="number_phone_it" value="number_phone_it">number_phone_it</option>
 
-                <option data-subtext="Spanish Phone Numbers" name="number_phone_es" value="number_phone_es">number_phone_es</option>
+                  <option data-subtext="Spanish Phone Numbers" name="number_phone_es" value="number_phone_es">number_phone_es</option>
 
-                <option data-subtext="Chinese Phone Numbers" name="number_phone_zh" value="number_phone_zh">number_phone_zh</option>
+                  <option data-subtext="Chinese Phone Numbers" name="number_phone_zh" value="number_phone_zh">number_phone_zh</option>
 
-                <option data-subtext="English Dates" name="date_eng" value="date_eng">date_eng</option>
+                  <option data-subtext="English Dates" name="date_eng" value="date_eng">date_eng</option>
 
-                <option data-subtext="German Dates" name="date_ger" value="date_ger">date_ger</option>
+                  <option data-subtext="German Dates" name="date_ger" value="date_ger">date_ger</option>
 
-                <option data-subtext="French Dates" name="date_fre" value="date_fre">date_fre</option>
+                  <option data-subtext="French Dates" name="date_fre" value="date_fre">date_fre</option>
 
-                <option data-subtext="Italian Dates" name="date_ita" value="date_ita">date_ita</option>
+                  <option data-subtext="Italian Dates" name="date_ita" value="date_ita">date_ita</option>
 
-                <option data-subtext="Spanish Dates" name="date_spa" value="date_spa">date_spa</option>
+                  <option data-subtext="Spanish Dates" name="date_spa" value="date_spa">date_spa</option>
 
-                <option data-subtext="Chinese Dates" name="date_chi" value="date_chi">date_chi</option>
+                  <option data-subtext="Chinese Dates" name="date_chi" value="date_chi">date_chi</option>
 
-                <option data-subtext="Holidays" name="holidays" value="holidays">holidays</option>
+                  <option data-subtext="Holidays" name="holidays" value="holidays">holidays</option>
 
-                <option data-subtext="Internet Addresses" name="internet" value="internet">internet</option>
+                  <option data-subtext="Internet Addresses" name="internet" value="internet">internet</option>
 
-                <option data-subtext="Internet Email Addresses" name="internet_email" value="internet_email">internet_email</option>
+                  <option data-subtext="Internet Email Addresses" name="internet_email" value="internet_email">internet_email</option>
 
-                <option data-subtext="Internet IP Addresses" name="ip_address" value="ip_address">ip_address</option>
+                  <option data-subtext="Internet IP Addresses" name="ip_address" value="ip_address">ip_address</option>
 
-                <option data-subtext="Medical Conditions" name="medical_conditions" value="medical_conditions">medical_conditions</option>
+                  <option data-subtext="Medical Conditions" name="medical_conditions" value="medical_conditions">medical_conditions</option>
 
-                <option data-subtext="Credit Card Numbers" name="number_cc" value="number_cc">number_cc</option>
+                  <option data-subtext="Credit Card Numbers" name="number_cc" value="number_cc">number_cc</option>
 
-                <option data-subtext="UK National Insurance Numbers" name="nationalinsurance_gb" value="nationalinsurance_gb">nationalinsurance_gb</option>
+                  <option data-subtext="UK National Insurance Numbers" name="nationalinsurance_gb" value="nationalinsurance_gb">nationalinsurance_gb</option>
 
-                <option data-subtext="US Social Security Numbers" name="socialsecurity_us" value="socialsecurity_us">socialsecurity_us</option>
+                  <option data-subtext="US Social Security Numbers" name="socialsecurity_us" value="socialsecurity_us">socialsecurity_us</option>
 
-                <option data-subtext="Canadian Social Insurance Numbers" name="socialinsurance_ca" value="socialinsurance_ca">socialinsurance_ca</option>
+                  <option data-subtext="Canadian Social Insurance Numbers" name="socialinsurance_ca" value="socialinsurance_ca">socialinsurance_ca</option>
 
-                <option data-subtext="Sports Teams" name="teams" value="teams">teams</option>
+                  <option data-subtext="Sports Teams" name="teams" value="teams">teams</option>
 
-                <option data-subtext="US Vehicle License Plates" name="licenseplate_us" value="licenseplate_us">licenseplate_us</option>
+                  <option data-subtext="US Vehicle License Plates" name="licenseplate_us" value="licenseplate_us">licenseplate_us</option>
 
-                <option data-subtext="UK Vehicle License Plates" name="licenseplate_gb" value="licenseplate_gb">licenseplate_gb</option>
+                  <option data-subtext="UK Vehicle License Plates" name="licenseplate_gb" value="licenseplate_gb">licenseplate_gb</option>
 
-                <option data-subtext="French Vehicle License Plates" name="licenseplate_fr" value="licenseplate_fr">licenseplate_fr</option>
+                  <option data-subtext="French Vehicle License Plates" name="licenseplate_fr" value="licenseplate_fr">licenseplate_fr</option>
 
-                <option data-subtext="German Vehicle License Plates" name="licenseplate_de" value="licenseplate_de">licenseplate_de</option>
+                  <option data-subtext="German Vehicle License Plates" name="licenseplate_de" value="licenseplate_de">licenseplate_de</option>
 
-                <option data-subtext="Canadian Vehicle License Plates" name="licenseplate_ca" value="licenseplate_ca">licenseplate_ca</option>
+                  <option data-subtext="Canadian Vehicle License Plates" name="licenseplate_ca" value="licenseplate_ca">licenseplate_ca</option>
 
-                <option data-subtext="US Driver's License Numbers" name="driverslicense_us" value="driverslicense_us">driverslicense_us</option>
+                  <option data-subtext="US Driver's License Numbers" name="driverslicense_us" value="driverslicense_us">driverslicense_us</option>
 
-                <option data-subtext="UK Driver's License Numbers" name="driverslicense_gb" value="driverslicense_gb">driverslicense_gb</option>
+                  <option data-subtext="UK Driver's License Numbers" name="driverslicense_gb" value="driverslicense_gb">driverslicense_gb</option>
 
-                <option data-subtext="French Driver's License Numbers" name="driverslicense_fr" value="driverslicense_fr">driverslicense_fr</option>
+                  <option data-subtext="French Driver's License Numbers" name="driverslicense_fr" value="driverslicense_fr">driverslicense_fr</option>
 
-                <option data-subtext="German Driver's License Numbers" name="driverslicense_de" value="driverslicense_de">driverslicense_de</option>
+                  <option data-subtext="German Driver's License Numbers" name="driverslicense_de" value="driverslicense_de">driverslicense_de</option>
 
-                <option data-subtext="Canadian Driver's License Numbers" name="driverslicense_ca" value="driverslicense_ca">driverslicense_ca</option>
+                  <option data-subtext="Canadian Driver's License Numbers" name="driverslicense_ca" value="driverslicense_ca">driverslicense_ca</option>
 
-                <option data-subtext="Canadian Bank Account Numbers" name="bankaccount_ca" value="bankaccount_ca">bankaccount_ca</option>
+                  <option data-subtext="Canadian Bank Account Numbers" name="bankaccount_ca" value="bankaccount_ca">bankaccount_ca</option>
 
-                <option data-subtext="French Bank Account Numbers" name="bankaccount_fr" value="bankaccount_fr">bankaccount_fr</option>
+                  <option data-subtext="French Bank Account Numbers" name="bankaccount_fr" value="bankaccount_fr">bankaccount_fr</option>
 
-                <option data-subtext="UK Bank Account Numbers" name="bankaccount_gb" value="bankaccount_gb">bankaccount_gb</option>
+                  <option data-subtext="UK Bank Account Numbers" name="bankaccount_gb" value="bankaccount_gb">bankaccount_gb</option>
 
-                <option data-subtext="Irish Bank Account Numbers" name="bankaccount_ie" value="bankaccount_ie">bankaccount_ie</option>
+                  <option data-subtext="Irish Bank Account Numbers" name="bankaccount_ie" value="bankaccount_ie">bankaccount_ie</option>
 
-                <option data-subtext="US Bank Account Numbers" name="bankaccount_us" value="bankaccount_us">bankaccount_us</option>
+                  <option data-subtext="US Bank Account Numbers" name="bankaccount_us" value="bankaccount_us">bankaccount_us</option>
 
-                <option data-subtext="German Bank Account Numbers" name="bankaccount_de" value="bankaccount_de">bankaccount_de</option>
+                  <option data-subtext="German Bank Account Numbers" name="bankaccount_de" value="bankaccount_de">bankaccount_de</option>
 
-                <option data-subtext="32-digit and 40-digit hexidecimal file hashes" name="file_hash" value="file_hash">file_hash</option>
+                  <option data-subtext="32-digit and 40-digit hexidecimal file hashes" name="file_hash" value="file_hash">file_hash</option>
 
-              </select>
-            </td>
-            <!--  -->
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Analyze Call</button></td>
-            <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
-          <% } else if (!calls[i]['audio']) { %>
-            <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
-            <td>unavailable</td>
-            <td>unavailable</td>
-            <td>unavailable</td>
-            <td>
-              <select name="language" class='<%= calls[i]['CallSid'] %>' disabled="disabled">
-                <option value="en-US-tel">US English</option>
-                <option value="en-GB-tel">British English</option>
-                <option value="es-ES-tel">European Spanish</option>
-                <option value="fr-FR-tel">French</option>
-              </select>
-            </td>
-            <td>unavailable</td>
-            <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='obtainAudio(this)' disabled="disabled">Obtaining Audio</button></td>
-          <!-- Have not obtained audio or processed -->
+                </select>
+              </td>
+              <!--  -->
+              <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Analyze Call</button></td>
+              <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
+            <% } else if (!calls[i]['audio']) { %>
+              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>unavailable</td>
+              <td>unavailable</td>
+              <td>unavailable</td>
+              <td>
+                <select name="language" class='<%= calls[i]['CallSid'] %>' disabled="disabled">
+                  <option value="en-US-tel">US English</option>
+                  <option value="en-GB-tel">British English</option>
+                  <option value="es-ES-tel">European Spanish</option>
+                  <option value="fr-FR-tel">French</option>
+                </select>
+              </td>
+              <td>unavailable</td>
+              <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='obtainAudio(this)' disabled="disabled">Obtaining Audio</button></td>
+            <!-- Have not obtained audio or processed -->
 
-          <% } %>
-        </tr>
-      </tbody>
-    <% } %>
+            <% } %>
+          </tr>
+        </tbody>
+      <% } %>
+</section>
 
 <script>
 function processCall(elem) {

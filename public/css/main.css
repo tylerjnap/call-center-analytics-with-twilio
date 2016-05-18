@@ -2,8 +2,8 @@ body {
   font-family: Source Sans Pro,Arial,sans-serif;
   background-color: #425563;
   color: white;
-  padding-left: 12px;
-  padding-right: 12px;
+  /*padding-left: 12px;
+  padding-right: 12px;*/
 }
 
 h1 {
@@ -82,4 +82,9 @@ a {
 
 #concepts-wordcloud {
   height: 321px;
+}
+
+#content {
+  padding-left: 12px;
+  padding-right: 12px;
 }

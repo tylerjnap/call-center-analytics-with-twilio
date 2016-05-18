@@ -29,66 +29,67 @@
   </nav>
 
 
-
-<div class="row">
-  <div class="col-xs-12">
-    <h1>Search Calls</h1>
+<section id='content'>
+  <div class="row">
+    <div class="col-xs-12">
+      <h1>Search Calls</h1>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <label for="search">Search</label>
+  <div class="row">
+    <div class="col-xs-12">
+      <label for="search">Search</label>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <form action="/search" method="POST">
-      <div class="form-group">
-        <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search" required>
-      </div>
-      <button type="submit" class="btn btn-default" id="search">Search</button>
-    </form>
+  <div class="row">
+    <div class="col-xs-12">
+      <form action="/search" method="POST">
+        <div class="form-group">
+          <input type="text" name="search" placeholder="I'm feeling great today!" id="search" class="search" required>
+        </div>
+        <button type="submit" class="btn btn-default" id="search">Search</button>
+      </form>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-xs-12">
-    <table class="table" id="callTable">
-      <thead>
-        <tr>
-          <th>Call</th>
-          <th>Audio</th>
-          <th>Download</th>
-          <th>Sentiment</th>
-          <th>Language</th>
-          <th>Find Similar</th>
-          <th>Weight</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for (var i=0; i<calls.length; i++) { %>
-        <tr>
-          <td><a href='call/<%= calls[i]['callsid'][0] %>'>Call by <%= calls[i]['from'][0] %> to <%= calls[i]['to'][0] %> on <%= calls[i]['date'] %></a></td>
-          <td>
-            <audio controls>
-              <source src='<%= calls[i]['recordingurl'] %>' type="audio/mpeg">
-            Your browser does not support the audio element.
-            </audio>
-          </td>
-          <td>
-            <a href='<%= calls[i]['recordingurl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
-          </td>
-          <td><%= calls[i]['aggregate_sentiment'] %> / <%= Math.round(calls[i]['aggregate_score'] * 100 ) %>% </td>
-          <td><%= calls[i]['language'][0] %></td>
-          <td>
-            <form action="/findSimilar" method="GET">
-                <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
-              <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
-            </form>
-          </td>
-          <td><%= calls[i]['weight'] %></td>
-        </tr>
-      </tbody>
-    <% } %>
+  <div class="row">
+    <div class="col-xs-12">
+      <table class="table" id="callTable">
+        <thead>
+          <tr>
+            <th>Call</th>
+            <th>Audio</th>
+            <th>Download</th>
+            <th>Sentiment</th>
+            <th>Language</th>
+            <th>Find Similar</th>
+            <th>Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var i=0; i<calls.length; i++) { %>
+          <tr>
+            <td><a href='call/<%= calls[i]['callsid'][0] %>'>Call by <%= calls[i]['from'][0] %> to <%= calls[i]['to'][0] %> on <%= calls[i]['date'] %></a></td>
+            <td>
+              <audio controls>
+                <source src='<%= calls[i]['recordingurl'] %>' type="audio/mpeg">
+              Your browser does not support the audio element.
+              </audio>
+            </td>
+            <td>
+              <a href='<%= calls[i]['recordingurl'] %>' download ><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a>
+            </td>
+            <td><%= calls[i]['aggregate_sentiment'] %> / <%= Math.round(calls[i]['aggregate_score'] * 100 ) %>% </td>
+            <td><%= calls[i]['language'][0] %></td>
+            <td>
+              <form action="/findSimilar" method="GET">
+                  <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
+                <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
+              </form>
+            </td>
+            <td><%= calls[i]['weight'] %></td>
+          </tr>
+        </tbody>
+      <% } %>
+</section>
 
 <script>
 function processCall(elem) {
