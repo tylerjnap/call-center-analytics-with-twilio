@@ -18,7 +18,7 @@ h3 {
   font-size: 18px;
 }
 
-.transcription-text, .confidence, .language {
+.transcription-text, .confidence, .language, .overall-sentiment-sentiment, .overall-sentiment-score {
   color: black;
 }
 
@@ -73,4 +73,8 @@ a {
 
 .anchor, .anchor:visited, a, a:visited {
   color: #ff8d6d;
+}
+
+.popover{
+    max-width: 70%; /* Max Width of the popover (depending on the container!) */
 }
