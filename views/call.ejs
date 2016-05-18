@@ -50,7 +50,7 @@
     <div class="row">
       <div class="col-xs-12">
         <div class="well">
-          <p class="transcription-text"><%= call['TranscriptionText'] %></p>
+          <p class="transcription-text" id="transcription-text"><%= call['TranscriptionText'] %></p>
           <p class="confidence">Transcription confidence: <%= Math.floor(call['confidence']) %>%</p>
           <p class="language">Language: <%= language %></p>
           <audio controls>
@@ -113,7 +113,7 @@
         <% if (call['sentiments']['positive'].length > 0) { %>
           <div class="row">
             <div class="col-xs-12">
-              <table class="table">
+              <table class="table" id="sentiments-table-positive">
                 <thead>
                   <tr>
                     <th>Topic</th>
@@ -147,7 +147,7 @@
         <% if (call['sentiments']['negative'].length > 0) { %>
           <div class="row">
             <div class="col-xs-12">
-              <table class="table">
+              <table class="table" id="sentiments-table-negative">
                 <thead>
                   <tr>
                     <th>Topic</th>
@@ -286,8 +286,8 @@
       var fontConstant=14;
       var counter = 0;
       var frequencyList = [];
-      var rows = document.getElementById("concepts-table").rows;
-      async.each(rows, function(row, c) {
+      var conceptsRows = document.getElementById("concepts-table").rows;
+      async.each(conceptsRows, function(row, c) {
         if (counter > 0) {
           var text = row.children[0].innerText;
           var size = row.children[1].innerText;
@@ -295,7 +295,7 @@
           frequencyList.push({"text": text, "weight": size});
         }
         counter += 1;
-        if (counter >= rows.length) {
+        if (counter >= conceptsRows.length) {
           // generateWordCloud(frequencyList);
           $('#concepts-wordcloud').jQCloud(frequencyList, {
             autoResize: true,
@@ -306,6 +306,83 @@
       }, function(err) {
 
       })
+
+      // var newText = '';
+      var transcriptionText = document.getElementById('transcription-text');
+
+      var text = transcriptionText.innerHTML;
+      var textArray = text.split(' ');
+      var sentimentsPositiveRowsElement = document.getElementById("sentiments-table-positive")
+      if (sentimentsPositiveRowsElement) { // if there are positive sentiments
+        var sentimentsPositiveRows = sentimentsPositiveRowsElement.rows;
+      } else { //if there are no positive sentiments
+        var sentimentsPositiveRows = [];
+      }
+      var sentimentsInfo = [];
+      for (var i=0; i<sentimentsPositiveRows.length; i++) {
+        if (i > 0) {
+          var topic = sentimentsPositiveRows[i].children[0].innerText;
+          var sentiment = sentimentsPositiveRows[i].children[1].innerText;
+          var score = sentimentsPositiveRows[i].children[2].innerText;
+          var index = text.indexOf(topic);
+          if (index != -1) { // included
+            var newText = ''
+            for (var j=index; j<index+topic.length; j++) {
+              newText += text[j];
+            }
+            sentimentsInfo.push({text: newText, sentiment: sentiment, score: score, index: index});
+          }
+        }
+      }
+
+      var sentimentsNegativeRowsElement = document.getElementById("sentiments-table-negative")
+      if (sentimentsNegativeRowsElement) { // if there are positive sentiments
+        var sentimentsNegativeRows = sentimentsNegativeRowsElement.rows;
+      } else { //if there are no positive sentiments
+        var sentimentsNegativeRows = [];
+      }
+      for (var i=0; i<sentimentsNegativeRows.length; i++) {
+        if (i > 0) {
+          var topic = sentimentsNegativeRows[i].children[0].innerText;
+          var sentiment = sentimentsNegativeRows[i].children[1].innerText;
+          var score = sentimentsNegativeRows[i].children[2].innerText;
+          var index = text.indexOf(topic);
+          if (index != -1) { // included
+            var newText = ''
+            for (var j=index; j<index+topic.length; j++) {
+              newText += text[j];
+            }
+            sentimentsInfo.push({text: newText, sentiment: sentiment, score: score, index: index});
+          }
+        }
+      }
+      console.log(sentimentsInfo);
+
+      newColoredText = '';
+      var i = 0;
+      while (i<text.length) {
+        var found = false
+
+          for (var j=0; j<sentimentsInfo.length; j++) { // loop through the sentiments  info array
+            if (!found) {
+              if (i == sentimentsInfo[j].index) { // if it's the word we want
+                found = true
+                if (sentimentsInfo[j].score > 0) {
+                  newColoredText += "<span style='color: green'>"+ sentimentsInfo[j].text+"</span> "
+                } else if (sentimentsInfo[j].score < 0) {
+                  newColoredText += "<span style='color: red'>"+ sentimentsInfo[j].text+"</span> "
+                }
+                i+=sentimentsInfo[j].text.length
+              }
+            }
+          }
+          if (!found) {
+            newColoredText += text[i]
+           }
+        i += 1;
+      }
+      console.log(newColoredText)
+      transcriptionText.innerHTML = newColoredText;
 
 
     })
