@@ -25,4 +25,4 @@
 * [Haven OnDemand's Query Text Index API](https://dev.havenondemand.com/apis/querytextindex)
 * [Haven OnDemand's Find Similar API](https://dev.havenondemand.com/apis/findsimilar)
 * [Node.js](https://nodejs.org/en/)
-* [jQCloud](https://nodejs.org/en/)
+* [jQCloud](http://mistic100.github.io/jQCloud/)
