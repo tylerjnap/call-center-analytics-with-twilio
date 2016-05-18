@@ -285,7 +285,7 @@
     });
 
     $(document).ready(function(){
-      $('#popoverData').popover();
+      $('[data-toggle="popover"]').popover();
     });
 
     $(window).load(function() {
@@ -300,7 +300,8 @@
           var text = row.children[0].innerText;
           var size = row.children[1].innerText;
           // frequencyList.push({"text": text, "size": size});
-          frequencyList.push({"text": text, "weight": size});
+          // data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content
+          frequencyList.push({"text": text, "weight": size, "html": {"data-toggle": "popover", "data-original-title": "Weight", "data-trigger": "hover", "rel": "popover", "data-content": size}});
         }
         counter += 1;
         if (counter >= conceptsRows.length) {
@@ -308,7 +309,7 @@
           $('#concepts-wordcloud').jQCloud(frequencyList, {
             autoResize: true,
             width: width,
-            height: 150
+            height: 200
           });
         }
       }, function(err) {
@@ -394,7 +395,11 @@
 
       $('[data-toggle="popover"]').popover()
 
+      setTimeout(function() {
+        $('[data-toggle="popover"]').popover()
+      }, 1000);
 
-    })
+      })
+
 </script>
 </body>
