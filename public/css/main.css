@@ -77,4 +77,5 @@ a {
 
 .popover{
     max-width: 70%; /* Max Width of the popover (depending on the container!) */
+    font-family: Source Sans Pro,Arial,sans-serif;
 }
