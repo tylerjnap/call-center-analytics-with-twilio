@@ -312,6 +312,7 @@
             autoResize: true,
             width: width,
             height: 200
+            // colors: ["#800026", "#bd0026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffeda0", "#ffffcc"]
           });
         }
       }, function(err) {
@@ -379,9 +380,9 @@
               if (i == sentimentsInfo[j].index) { // if it's the word we want
                 found = true
                 if (sentimentsInfo[j].score > 0) {
-                  newColoredText += "<span style='color: green' id='popoverData' data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content='sentiment: "+sentimentsInfo[j].sentiment+" | score: "+sentimentsInfo[j].score+"'>"+ sentimentsInfo[j].text+"</span> "
+                  newColoredText += "<span style='color: #32CD32' id='popoverData' data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content='sentiment: "+sentimentsInfo[j].sentiment+" | score: "+sentimentsInfo[j].score+"'>"+ sentimentsInfo[j].text+"</span> "
                 } else if (sentimentsInfo[j].score < 0) {
-                  newColoredText += "<span style='color: red' id='popoverData' data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content='sentiment: "+sentimentsInfo[j].sentiment+" | score: "+sentimentsInfo[j].score+"'>"+ sentimentsInfo[j].text+"</span> "
+                  newColoredText += "<span style='color: #ff0101' id='popoverData' data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content='sentiment: "+sentimentsInfo[j].sentiment+" | score: "+sentimentsInfo[j].score+"'>"+ sentimentsInfo[j].text+"</span> "
                 }
                 i+=sentimentsInfo[j].text.length
               }
