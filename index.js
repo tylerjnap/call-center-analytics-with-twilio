@@ -202,131 +202,141 @@ app.get('/processCall', function(req, res) {
   var CallSid = req.query.CallSid
   var language = req.query.language
   var entityType = req.query.entity_type
-  console.log("Processing call: " + CallSid)
-  Call.update({'CallSid': CallSid}, {
-    processing: true,
-    language: language,
-    entitiesSelected: entityType
-  }, function(error1, numberAffected, rawResponse) {
-    //
-    if (error1) {
-      console.log(err)
-    } else {
-      Call.findOne({ CallSid: CallSid }, function (error2, doc){
-        // doc.name = 'jason borne'
-        // doc.visits.$inc()
-        // doc.save()
-        if (error2) {
-
+  Call.findOne({ CallSid: CallSid }, function(error, doc1) {
+    if (doc1.processing == false) {
+      //
+      console.log("Processing call: " + CallSid)
+      Call.update({'CallSid': CallSid}, {
+        processing: true,
+        language: language,
+        entitiesSelected: entityType
+      }, function(error1, numberAffected, rawResponse) {
+        //
+        if (error1) {
+          console.log(error1)
         } else {
-          var recordingUrl = doc.RecordingUrl
-          var To = doc.To
-          var From = doc.From
-          var dateCreated = doc.dateCreated
-          //
-          var data1 = {url: recordingUrl, language: language, interval: 0}
-          // debugger
-          hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
-            var jobID = resp1.body.jobID
-            // debugger
-            getAsyncResult(jobID, function(body) {
+          Call.findOne({ CallSid: CallSid }, function (error2, doc){
+            // doc.name = 'jason borne'
+            // doc.visits.$inc()
+            // doc.save()
+            if (error2) {
+
+            } else {
+              var recordingUrl = doc.RecordingUrl
+              var To = doc.To
+              var From = doc.From
+              var dateCreated = doc.dateCreated
+              //
+              var data1 = {url: recordingUrl, language: language, interval: 0}
               // debugger
-              if (body == 'failed') {
-                createError(CallSid)
-              } else {
-                //continue
-                // var text = body.actions[0].result.document[0].content
-                var textSnippets = body.actions[0].result.document
-                //
-                processText(textSnippets, function(textObj) {
+              hodClient.call('recognizespeech', data1, true, function(err1, resp1, body1) {
+                var jobID = resp1.body.jobID
+                // debugger
+                getAsyncResult(jobID, function(body) {
                   // debugger
-                  var text = textObj.text
-                  var confidenceAggregate = textObj.aggregate
-                  //
-                  console.log("Text: " + text)
-                  if (text == "") {
+                  if (body == 'failed') {
                     createError(CallSid)
                   } else {
-                    // HOD stuff
-                    var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
-                    var data2 = {text: text, language: sentimentAnalysisLanguage}
-                    hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
+                    //continue
+                    // var text = body.actions[0].result.document[0].content
+                    var textSnippets = body.actions[0].result.document
+                    //
+                    processText(textSnippets, function(textObj) {
                       // debugger
-                      console.log("Analyzed sentiment")
-                      var sentimentResponse = body2
-                      var aggregateSentiment = resp2.body.aggregate.sentiment
-                      var aggregateScore = resp2.body.aggregate.score
-                      hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
-                        // debugger
-                        console.log("Extracted concepts")
-                        var conceptsResponse = body3
-                        var data3 = {text: text, entity_type: entityType}
-                        hodClient.call('extractentities', data3, function(err4, resp4, body4) {
-                          console.log("Extracted entities")
-                          var entityResponse = body4
-                          //
-                          //
-                          var json = {
-                            document: [
-                              {
-                                // title: counter.toString(),
-                                // body: body
-                                content: text,
-                                CallSid: CallSid,
-                                // sentiments: sentimentResponse,
-                                aggregate_sentiment: aggregateSentiment,
-                                aggregate_score: aggregateScore,
-                                // concepts: conceptsResponse,
-                                RecordingUrl: recordingUrl,
-                                TranscriptionText: text,
-                                confidence: confidenceAggregate,
-                                From: From,
-                                To: To,
-                                date: dateCreated,
-                                language: language
-                              }
-                            ]
-                          }
-                          var data4 = {
-                            index: process.env.HOD_INDEX_NAME,
-                            json: JSON.stringify(json)
-                          }
+                      var text = textObj.text
+                      var confidenceAggregate = textObj.aggregate
+                      //
+                      console.log("Text: " + text)
+                      if (text == "") {
+                        createError(CallSid)
+                      } else {
+                        // HOD stuff
+                        var sentimentAnalysisLanguage = languageObj[language]['sentiment-analysis']
+                        var data2 = {text: text, language: sentimentAnalysisLanguage}
+                        hodClient.call('analyzesentiment', data2, function(err2, resp2, body2) {
                           // debugger
-                          hodClient.call('addtotextindex', data4, function(err5, resp5, body5) {
-                            // mongo
+                          console.log("Analyzed sentiment")
+                          var sentimentResponse = body2
+                          var aggregateSentiment = resp2.body.aggregate.sentiment
+                          var aggregateScore = resp2.body.aggregate.score
+                          hodClient.call('extractconcepts', data2, function(err3, resp3, body3) {
                             // debugger
-                            var indexReference = resp5.body.references[0].reference
-                            Call.update({'CallSid': CallSid}, {
-                              text: text,
-                              concepts: conceptsResponse,
-                              sentiments: sentimentResponse,
-                              entities: entityResponse,
-                              RecordingUrl: recordingUrl,
-                              TranscriptionText: text,
-                              indexed: true,
-                              processed: true,
-                              confidence: confidenceAggregate,
-                              indexReference: indexReference
-                            }, function(err, numberAffected, rawResponse) {
-                              console.log("Processed")
+                            console.log("Extracted concepts")
+                            var conceptsResponse = body3
+                            var data3 = {text: text, entity_type: entityType}
+                            hodClient.call('extractentities', data3, function(err4, resp4, body4) {
+                              console.log("Extracted entities")
+                              var entityResponse = body4
+                              //
+                              //
+                              var json = {
+                                document: [
+                                  {
+                                    // title: counter.toString(),
+                                    // body: body
+                                    content: text,
+                                    CallSid: CallSid,
+                                    // sentiments: sentimentResponse,
+                                    aggregate_sentiment: aggregateSentiment,
+                                    aggregate_score: aggregateScore,
+                                    // concepts: conceptsResponse,
+                                    RecordingUrl: recordingUrl,
+                                    TranscriptionText: text,
+                                    confidence: confidenceAggregate,
+                                    From: From,
+                                    To: To,
+                                    date: dateCreated,
+                                    language: language
+                                  }
+                                ]
+                              }
+                              var data4 = {
+                                index: process.env.HOD_INDEX_NAME,
+                                json: JSON.stringify(json)
+                              }
+                              // debugger
+                              hodClient.call('addtotextindex', data4, function(err5, resp5, body5) {
+                                // mongo
+                                // debugger
+                                var indexReference = resp5.body.references[0].reference
+                                Call.update({'CallSid': CallSid}, {
+                                  text: text,
+                                  concepts: conceptsResponse,
+                                  sentiments: sentimentResponse,
+                                  entities: entityResponse,
+                                  RecordingUrl: recordingUrl,
+                                  TranscriptionText: text,
+                                  indexed: true,
+                                  processed: true,
+                                  confidence: confidenceAggregate,
+                                  indexReference: indexReference
+                                }, function(err, numberAffected, rawResponse) {
+                                  console.log("Processed")
+                                })
+                                //
+                              })
+                              //
                             })
-                            //
                           })
-                          //
                         })
-                      })
+                      }
+                      // HOD stuff
+                      //
                     })
                   }
-                  // HOD stuff
-                  //
                 })
-              }
-            })
-          })
-          //
+              })
+              //
 
+            }
+          })
         }
       })
+
+      //
+    } else {
+      console.log("Call already processing! " + CallSid)
+      res.redirect('/')
     }
   })
 })
