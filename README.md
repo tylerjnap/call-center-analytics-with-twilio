@@ -12,8 +12,8 @@
 1. Choose whatever entities you wish to extract from the call, click the language of the call, and click 'Analyze'.
 1. The app will then transcribe the text from the call recording, analyze the sentiment of the call, extract the main concepts from the call, extract any entities you specified, and add all of this to a Haven OnDemand Index.
 1. Once it's done processing, click on the link for the analyzed call.
-1. You can now look at the analytics from the call, extracted using Haven OnDemand's machine learning APIs.
-1. The main menu has a list of all of the calls made. From here, you can search through all of the calls using the search bar on the top, and find similar calls of another call using the 'Find Similar' button next to a call.
+1. You can now look at the analytics from the call extracted using Haven OnDemand's machine learning APIs.
+1. The main menu has a list of all of the calls made. From here, you can search through all of the calls using the search bar on the top, and find similar calls of another call using the 'Find Similar' button next to a call, powered by Haven OnDemand's Query Text Index API and Find Similar API..
 
 ### Technologies used
 * [Haven OnDemand's Speech Recogntion API](https://dev.havenondemand.com/apis/recognizespeech)
