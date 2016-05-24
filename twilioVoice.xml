@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="woman">Hello. Please tell us how you are feeling today!</Say>
-    <Record maxLength="60"/>
+    <Record maxLength="120"/>
 </Response>
