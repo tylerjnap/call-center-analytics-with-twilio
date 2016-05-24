@@ -3,7 +3,7 @@ var path = require('path')
 
 if (env == 'dev') {
   require('dotenv').load()
-  var twiMLUrl = "http://01c7d74d.ngrok.io/twilioVoice"
+  var twiMLUrl = "http://47c0032f.ngrok.io/twilioVoice"
 } else {
   // var twiMLUrl = path.join(__dirname, 'twilioVoice')
   var twiMLUrl = "https://callcenteranalytics.herokuapp.com/twilioVoice"
