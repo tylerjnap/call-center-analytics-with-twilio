@@ -92,3 +92,7 @@ a {
 .btn-call {
   background-color: #01a982;
 }
+
+.navbar-brand {
+  font-family: 'Open Sans', sans-serif;
+}
