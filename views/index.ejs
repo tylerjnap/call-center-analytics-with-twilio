@@ -31,6 +31,19 @@
 
 
 <section id='content'>
+  <!-- Make call -->
+  <div class="row">
+    <div class="col-xs-12">
+      <form action="/makeCall" method="POST" class="form-inline">
+        <div class="form-group">
+          <label for="phonenumber">Enter your phone number to receive a call</label>
+          <input type="text" name="phonenumber" placeholder="+15165557777" id=phonenumber>
+        </div>
+        <button type="submit" class="btn btn-call" id="call">Call me!</button>
+      </form>
+    </div>
+  </div>
+  <!-- / Make a call -->
   <div class="row">
     <div class="col-xs-12">
       <h1>All your calls <A HREF="javascript:history.go(0)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></A></h1>
@@ -375,6 +388,17 @@ function obtainAudio(elem) {
       }
   });
 }
+
+// function makeCall(elem) {
+//   var phoneNumber = phonenumber.value;
+//   $.ajax({
+//     url: "/makeCall?phonenumber="+phoneNumber,
+//     type: 'GET',
+//       success: function(res) {
+//         console.log(res);
+//       }
+//   });
+// }
 
 // function findSimilar(elem) {
 //   //disable button
