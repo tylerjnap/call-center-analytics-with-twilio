@@ -36,7 +36,7 @@
       <form action="/makeCall" method="POST" class="form-inline">
         <div class="form-group">
           <label for="phonenumber">Enter your phone number to receive a call</label>
-          <input type="text" name="phonenumber" placeholder="+15165557777" id=phonenumber>
+          <input type="text" class="form-control" name="phonenumber" placeholder="+15165557777" id=phonenumber>
         </div>
         <button type="submit" class="btn btn-call" id="call">Call me!</button>
       </form>
@@ -52,7 +52,7 @@
   <div class="col-xs-12">
     <form action="/search" method="POST" class="form-inline">
       <div class="form-group">
-        <input type="text" name="search" placeholder="Search the calls" id="search" class="search" required>
+        <input type="text" class="form-control" name="search" placeholder="Search the calls" id="search" class="search" required>
       </div>
       <button type="submit" class="btn btn-default" id="search">Search</button>
     </form>
