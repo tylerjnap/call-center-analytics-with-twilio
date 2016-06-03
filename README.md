@@ -4,7 +4,6 @@
 ### Overview
   Haven OnDemand offers advanced machine learning APIs for developers to connect, extract, index, analyze, and predict data. Combining these powerful APIs with Twilio's telephone calling services, businesses can extract key insights and metrics from call center recordings to better drive business strategy, marketing, and sales.
 ### How to use
-1. Click on the Make a call link at the top.
 1. Input your telephone number with the full country code and area code (i.e. **+15164505983** don't forget the '+').
 1. You will the receive a call. Answer your phone.
 1. The automated system will prompt you with a question. Answer the question. Remember to answer for at least 20 seconds for the best results!
@@ -26,3 +25,5 @@
 * [Haven OnDemand's Find Similar API](https://dev.havenondemand.com/apis/findsimilar)
 * [Node.js](https://nodejs.org/en/)
 * [jQCloud](http://mistic100.github.io/jQCloud/)
+* [MongoDB](https://www.mongodb.com/)
+* [Twilio](https://www.twilio.com/)
