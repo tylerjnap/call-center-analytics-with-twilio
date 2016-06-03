@@ -303,7 +303,13 @@
           var size = row.children[1].innerText;
           // frequencyList.push({"text": text, "size": size});
           // data-toggle='popover' data-original-title='Sentiments' data-trigger='hover' rel='popover' data-content
-          frequencyList.push({"text": text, "weight": size, "html": {"data-toggle": "popover", "data-original-title": text, "data-trigger": "hover", "rel": "popover", "data-content": "occurrences: "+size}});
+          var numWords = text.split(' ').length;
+          var numCharacters = text.split('').length;
+          if (numCharacters > 1) {
+            if (numWords < 4) {
+              frequencyList.push({"text": text, "weight": size, "html": {"data-toggle": "popover", "data-original-title": text, "data-trigger": "hover", "rel": "popover", "data-content": "occurrences: "+size}});
+            }
+          }
         }
         counter += 1;
         if (counter >= conceptsRows.length) {
