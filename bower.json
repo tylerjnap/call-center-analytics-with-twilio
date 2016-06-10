@@ -1,0 +1,26 @@
+{
+  "name": "twilio_call_center_demo",
+  "description": "Call center demo using Haven OnDemand's APIs for analysis",
+  "main": "index.js",
+  "authors": [
+    "Tyler Nappy"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/tylernappy/call-center-analytics-with-twilio",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jqcloud2": "^2.0.2",
+    "async": "^1.5.2",
+    "bootstrap": "^3.3.6",
+    "jquery": "^3.0.0"
+  },
+  "resolutions": {
+    "jquery": "1.9.1 - 2"
+  }
+}
