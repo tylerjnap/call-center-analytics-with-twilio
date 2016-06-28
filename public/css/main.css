@@ -44,6 +44,10 @@ input, select, textarea{
   background-color: #01a982;
 }
 
+.navbar-brand {
+  font-size: 22px;
+}
+
 .navbar-default {
   background-color: #01a982;
   border-color: #030033;
@@ -64,6 +68,7 @@ background-color: #66CCFF;  /*change color of links in drop down here*/
 
 
 .navbar-default .navbar-nav > li > a {
+  font-size: 16px;
  color: #01a982; /*Change active text color here*/
   }
 /* / Navbar stuff*/
