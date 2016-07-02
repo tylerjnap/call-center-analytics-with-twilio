@@ -80,7 +80,7 @@
           <tr>
             <!-- Completed processed -->
             <% if (calls[i]['processed'] && calls[i]['processing'] && calls[i]['audio']) { %>
-              <td><a href='call/<%= calls[i]['CallSid'] %>'>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></a></td>
+              <td><a href='call/<%= calls[i]['CallSid'] %>'>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></a></td>
               <td>
                 <audio controls>
                   <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
@@ -107,7 +107,7 @@
               </td>
             <!-- Currently processing -->
             <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error'] && calls[i]['audio']) { %>
-              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
               <td>
                 <audio controls>
                   <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
@@ -129,7 +129,7 @@
               <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
             <!-- Error while processing -->
             <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error'] && calls[i]['audio']) { %>
-              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
               <td>
                 <audio controls>
                   <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
@@ -151,7 +151,7 @@
               <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
             <!-- Obtained audio but have not processed -->
             <% } else if (!calls[i]['processed'] && !calls[i]['processing'] && calls[i]['audio']) { %>
-              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
               <td>
                 <audio controls>
                   <source src=<%= calls[i]['RecordingUrl'] %> type="audio/mpeg">
@@ -310,7 +310,7 @@
               <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Analyze Call</button></td>
               <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
             <% } else if (!calls[i]['audio']) { %>
-              <td>Call by <%= calls[i]['From'] %> to <%= calls[i]['To'] %> on <%= calls[i]['created'].getMonth()+1 %>/<%= calls[i]['created'].getDate()%>/<%= calls[i]['created'].getFullYear() %> at <%= calls[i]['created'].getHours() %>:<%= calls[i]['created'].getSeconds() %></td>
+              <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
               <td>unavailable</td>
               <td>unavailable</td>
               <td>unavailable</td>
