@@ -306,6 +306,20 @@ module.exports = function (app) {
     res.redirect('/')
   })
 
+  app.post('/delete', function(req, res) {
+    var CallSid = req.body.CallSid
+    var indexReference = req.body.indexReference
+    var data = {index: process.env.HOD_INDEX_NAME, index_reference: indexReference}
+    Call.remove({CallSid: CallSid}, function(error) {
+      if (error) return handleError(error)
+      hodClient.call('deletefromtextindex', data, function(err, resp, body) {
+        console.log(resp.body)
+        if (err) console.log(err)
+        res.redirect('/')
+      })
+    })
+  })
+
   // Function for getting Twilio XML file
   app.post('/twilioVoice', function(req, res) {
     var fileName = path.join(__dirname, '/twilioVoice.xml')

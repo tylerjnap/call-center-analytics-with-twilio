@@ -34,7 +34,7 @@
         <% } %>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="https://havenondemand.com" target="_blank">Powered by&nbsp;       <img alt="Brand" src="img/hod-black.png" height="20"></a></li>
+        <li><a href="https://havenondemand.com" target="_blank">Powered by&nbsp;       <img alt="Brand" src="../img/hod-black.png" height="20"></a></li>
       </ul>
     </div>
   </nav>
@@ -42,9 +42,20 @@
 <section id='content'>
   <div class="row">
     <div class="col-xs-12">
-      <h1>Call by <%= call['From'] %> to <%= call['To'] %> on <%= call['created'].getMonth()+1 %>/<%= call['created'].getDate()%>/<%= call['created'].getFullYear() %> at <%= call['created'].getHours() %>:<%= call['created'].getSeconds() %></h1>
+      <h1>To (XXX) XXX-<%= call['To'].substring(8,12) %> on <%= call['created'].getMonth()+1 %>/<%= call['created'].getDate()%>/<%= call['created'].getFullYear() %> at <%= call['created'].getHours() %>:<%= call['created'].getSeconds() %></h1>
     </div>
   </div>
+  <% if (user) { %>
+    <div class="row">
+      <div class="col-xs-12">
+        <form action="/delete" method="POST">
+          <input type="hidden" name="CallSid" value='<%= call['CallSid'] %>' >
+          <input type="hidden" name="indexReference" value='<%= call['indexReference'] %>' >
+          <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
   <div class="row">
     <!-- Left side -->
     <div class="col-xs-6">
@@ -265,7 +276,7 @@
                               </div>
                             </div>
                           </td>
-                          <!-- End Additional INformation -->
+                          <!-- End Additional Information -->
                         </tr>
                       <% } %>
                     </tbody>

@@ -43,9 +43,17 @@
       <form action="/makeCall" method="POST" class="form-inline">
         <div class="form-group">
           <label for="phonenumber">Enter your phone number to receive a call</label>
-          <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id=phonenumber>
+          <% if (user) { %>
+            <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id='phonenumber'>
+          <% } else { %>
+            <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id='phonenumber' disabled>
+          <% } %>
         </div>
-        <button type="submit" class="btn btn-call" id="call">Call me!</button>
+        <% if (user) { %>
+          <button type="submit" class="btn btn-call" id="call">Call me!</button>
+        <% } else { %>
+          <button type="submit" class="btn btn-call" id="call" disabled>Login to make a call</button>
+        <% } %>
       </form>
     </div>
   </div>
@@ -76,6 +84,9 @@
             <th>Sentiment</th>
             <th>Language</th>
             <th>Find Similar</th>
+            <% if (user) { %>
+              <th>Delete</th>
+            <% } %>
             <th>Weight</th>
           </tr>
         </thead>
@@ -100,6 +111,15 @@
                 <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
               </form>
             </td>
+            <% if (user) { %>
+              <td>
+                <form action="/delete" method="POST">
+                  <input type="hidden" name="CallSid" value='<%= calls[i]['callsid'][0] %>' >
+                  <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
+                  <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                </form>
+              </td>
+            <% } %>
             <td><%= calls[i]['weight'] %></td>
           </tr>
         </tbody>

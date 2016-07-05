@@ -44,9 +44,17 @@
       <form action="/makeCall" method="POST" class="form-inline">
         <div class="form-group">
           <label for="phonenumber">Enter your phone number to receive a call</label>
-          <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id=phonenumber>
+          <% if (user) { %>
+            <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id='phonenumber'>
+          <% } else { %>
+            <input type="text" class="form-control" name="phonenumber" placeholder="+15556667777" id='phonenumber' disabled>
+          <% } %>
         </div>
-        <button type="submit" class="btn btn-call" id="call">Call me!</button>
+        <% if (user) { %>
+          <button type="submit" class="btn btn-call" id="call">Call me!</button>
+        <% } else { %>
+          <button type="submit" class="btn btn-call" id="call" disabled>Login to make a call</button>
+        <% } %>
       </form>
     </div>
   </div>
@@ -78,6 +86,9 @@
             <th>Language</th>
             <th>Entities</th>
             <th>Action</th>
+            <% if (user) { %>
+              <th>Delete</th>
+            <% } %>
           </tr>
         </thead>
         <tbody>
@@ -110,6 +121,15 @@
                   <button type="submit" class="btn btn-warning" id="findSimilar">Find Similar</button>
                 </form>
               </td>
+              <% if (user) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['CallSid'] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
             <!-- Currently processing -->
             <% } else if (!calls[i]['processed'] && calls[i]['processing'] && !calls[i]['error'] && calls[i]['audio']) { %>
               <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
@@ -132,6 +152,15 @@
                 </ul>
               </td>
               <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Analyzing Call</button></td>
+              <% if (user) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['CallSid'] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
             <!-- Error while processing -->
             <% } else if (!calls[i]['processed'] && calls[i]['processing'] && calls[i]['error'] && calls[i]['audio']) { %>
               <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
@@ -154,6 +183,15 @@
                 </ul>
               </td>
               <td><button type="submit" class="btn btn-danger" id='<%= calls[i]['CallSid'] %>' disabled="disabled">Error Analyzing</button></td>
+              <% if (user) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['CallSid'] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
             <!-- Obtained audio but have not processed -->
             <% } else if (!calls[i]['processed'] && !calls[i]['processing'] && calls[i]['audio']) { %>
               <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
@@ -313,6 +351,15 @@
               </td>
               <!--  -->
               <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='processCall(this)'>Analyze Call</button></td>
+              <% if (user) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['CallSid'] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
               <!-- Currenlty obtaining audio but not obtained yet (i.e. right after phone call) -->
             <% } else if (!calls[i]['audio']) { %>
               <td>To (XXX) XXX-<%= calls[i]['To'].substring(8,12) %></td>
@@ -329,6 +376,15 @@
               </td>
               <td>unavailable</td>
               <td><button type="submit" class="btn btn-success" id='<%= calls[i]['CallSid'] %>' onclick='obtainAudio(this)' disabled="disabled">Obtaining Audio</button></td>
+              <% if (user) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['CallSid'] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['indexReference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
             <!-- Have not obtained audio or processed -->
 
             <% } %>
