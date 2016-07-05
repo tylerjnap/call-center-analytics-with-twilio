@@ -293,6 +293,7 @@ module.exports = function (app) {
           callObj['CallSid'] = call.sid
           callObj['To'] = call.to
           callObj['From'] = call.from
+          callObj['username'] = req.user.username
           var callMongo = new Call (callObj)
           callMongo.save(function (err) {
             if (err)  {

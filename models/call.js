@@ -31,7 +31,8 @@ var schema = new mongoose.Schema({
   Caller: String,
   TranscriptionStatus: String,
   CallSid: String,
-  To: String
+  To: String,
+  username: String
 })
 
 module.exports = mongoose.model('Call', schema)
