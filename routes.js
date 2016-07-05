@@ -98,14 +98,15 @@ module.exports = function (app) {
         return handleError(err)
       } else {
         res.render('index', {
-          calls: calls
+          calls: calls,
+          user: req.user
         })
       }
     })
   })
 
   app.get('/about', function(req, res) {
-    res.render('about', {})
+    res.render('about', {user: req.user})
   })
 
   app.post('/search', function(req, res) {
@@ -120,7 +121,8 @@ module.exports = function (app) {
             var documents = resp.body.documents
           }
           res.render('search_results', {
-            calls: documents
+            calls: documents,
+            user: req.user
           })
         }
       }
@@ -135,7 +137,8 @@ module.exports = function (app) {
         if (resp.body) {
           var documents = resp.body.documents
           res.render('find_similar_results', {
-            calls: documents
+            calls: documents,
+            user: req.user
           })
         }
       }
@@ -143,7 +146,7 @@ module.exports = function (app) {
   })
 
   app.get('/callcenter', function(req, res) {
-    res.render('callcenter', {})
+    res.render('callcenter', {user: req.user})
   })
 
   app.get('/call/:CallSid', function(req, res) {
@@ -156,7 +159,8 @@ module.exports = function (app) {
         var language = languageObj[call.language]['regular']
         res.render('call', {
           call: call,
-          language: language
+          language: language,
+          user: req.user
         })
       }
     })
@@ -313,9 +317,8 @@ module.exports = function (app) {
   })
 
   //login stuff
-
   app.get('/register', function(req, res) {
-    res.render('register', { })
+    res.render('register', {user: req.user})
   })
 
   app.post('/register', function(req, res) {
@@ -323,16 +326,14 @@ module.exports = function (app) {
       if (err) {
         return res.render('register', { account : account })
       }
-      debugger
       passport.authenticate('local')(req, res, function () {
-        debugger
         res.redirect('/')
       })
     })
   })
 
   app.get('/login', function(req, res) {
-    res.render('login', { user : req.user })
+    res.render('login',  {user : req.user})
   })
 
   app.post('/login', passport.authenticate('local'), function(req, res) {

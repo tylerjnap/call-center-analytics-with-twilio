@@ -19,20 +19,25 @@
 </head>
 <body>
 
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a href="/" class="navbar-brand"><b>CALL</b> ANALYTICS</a>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="/" class="navbar-brand"><b>CALL</b> ANALYTICS</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="/">All calls</a></li>
+        <li><a href="/about">About</a></li>
+        <% if (!user) { %>
+          <li><a href="/login">Login</a></li>
+        <% } else  {%>
+          <li><a href="/logout">Logout</a></li>
+        <% } %>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://havenondemand.com" target="_blank">Powered by&nbsp;       <img alt="Brand" src="img/hod-black.png" height="20"></a></li>
+      </ul>
     </div>
-    <ul class="nav navbar-nav">
-      <li><a href="/">All calls</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li><a href="https://havenondemand.com" target="_blank">Powered by&nbsp;       <img alt="Brand" src="img/hod-black.png" height="20"></a></li>
-    </ul>
-  </div>
-</nav>
+  </nav>
 
 <section id='content'>
   <!-- Make call -->

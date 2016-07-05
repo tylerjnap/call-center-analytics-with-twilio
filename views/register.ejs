@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <title>Contact Center Analytics</title>
+  <link rel="shortcut icon" href="/img/favicon.ico" />
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+  <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <link href='css/source_sans_pro.css' rel='stylesheet' type='text/css'>
+  <link href='css/open_sans.css' rel='stylesheet' type='text/css'>
+  <script src="/bower_components/jqcloud2/dist/jqcloud.min.js"></script>
+  <link rel="stylesheet" href="/bower_components/jqcloud2/dist/jqcloud.min.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css"></style>
+  <script type="text/javascript" src="/bower_components/async/dist/async.min.js"></script>
+</head>
+<body>
+
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="/" class="navbar-brand"><b>CALL</b> ANALYTICS</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="/">All calls</a></li>
+        <li><a href="/about">About</a></li>
+        <% if (!user) { %>
+          <li><a href="/login">Login</a></li>
+        <% } else  {%>
+          <li><a href="/logout">Logout</a></li>
+        <% } %>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="https://havenondemand.com" target="_blank">Powered by&nbsp;       <img alt="Brand" src="img/hod-black.png" height="20"></a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <div class="row">
+    <div class="col-xs-3">
+      <h1>Register</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-3">
+      <form role="form" action="/register" method="post">
+        <div class="form-group">
+          <input type="text" name="username" placeholder="Enter Username" class="form-control">
+        </div>
+        <div class="form-group">
+          <input type="password" name="password" placeholder="Password" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-default">Signup</button>&nbsp;<a href="/">
+          <button type="button" class="btn btn-primary">Cancel</button></a>
+      </form>
+    </div>
+  </div>
+
+</body>
