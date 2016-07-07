@@ -85,7 +85,9 @@
             <th>Language</th>
             <th>Find Similar</th>
             <% if (user) { %>
-              <th>Delete</th>
+              <% if (user.username == admin) { %>
+                <th>Delete</th>
+              <% } %>
             <% } %>
             <th>Weight</th>
           </tr>
@@ -112,13 +114,15 @@
               </form>
             </td>
             <% if (user) { %>
-              <td>
-                <form action="/delete" method="POST">
-                  <input type="hidden" name="CallSid" value='<%= calls[i]['callsid'][0] %>' >
-                  <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
-                  <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
-                </form>
-              </td>
+              <% if (user.username == admin) { %>
+                <td>
+                  <form action="/delete" method="POST">
+                    <input type="hidden" name="CallSid" value='<%= calls[i]['callsid'][0] %>' >
+                    <input type="hidden" name="indexReference" value='<%= calls[i]['reference'] %>' >
+                    <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+                  </form>
+                </td>
+              <% } %>
             <% } %>
             <td><%= calls[i]['weight'] %></td>
           </tr>

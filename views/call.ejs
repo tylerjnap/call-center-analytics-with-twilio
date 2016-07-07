@@ -46,15 +46,17 @@
     </div>
   </div>
   <% if (user) { %>
-    <div class="row">
-      <div class="col-xs-12">
-        <form action="/delete" method="POST">
-          <input type="hidden" name="CallSid" value='<%= call['CallSid'] %>' >
-          <input type="hidden" name="indexReference" value='<%= call['indexReference'] %>' >
-          <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
-        </form>
+    <% if (user.username == admin) { %>
+      <div class="row">
+        <div class="col-xs-12">
+          <form action="/delete" method="POST">
+            <input type="hidden" name="CallSid" value='<%= call['CallSid'] %>' >
+            <input type="hidden" name="indexReference" value='<%= call['indexReference'] %>' >
+            <button type="submit" class="btn btn-danger" id="delete">Delete Call</button>
+          </form>
+        </div>
       </div>
-    </div>
+    <% } %>
   <% } %>
   <div class="row">
     <!-- Left side -->

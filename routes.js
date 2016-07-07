@@ -100,14 +100,18 @@ module.exports = function (app) {
       } else {
         res.render('index', {
           calls: calls,
-          user: req.user
+          user: req.user,
+          admin: process.env.ADMIN
         })
       }
     })
   })
 
   app.get('/about', function(req, res) {
-    res.render('about', {user: req.user})
+    res.render('about', {
+      user: req.user,
+      admin: process.env.ADMIN
+    })
   })
 
   app.post('/search', function(req, res) {
@@ -123,7 +127,8 @@ module.exports = function (app) {
           }
           res.render('search_results', {
             calls: documents,
-            user: req.user
+            user: req.user,
+            admin: process.env.ADMIN
           })
         }
       }
@@ -139,7 +144,8 @@ module.exports = function (app) {
           var documents = resp.body.documents
           res.render('find_similar_results', {
             calls: documents,
-            user: req.user
+            user: req.user,
+            admin: process.env.ADMIN
           })
         }
       }
@@ -147,7 +153,10 @@ module.exports = function (app) {
   })
 
   app.get('/callcenter', function(req, res) {
-    res.render('callcenter', {user: req.user})
+    res.render('callcenter', {
+      user: req.user,
+      admin: process.env.ADMIN
+    })
   })
 
   app.get('/call/:CallSid', function(req, res) {
@@ -161,7 +170,8 @@ module.exports = function (app) {
         res.render('call', {
           call: call,
           language: language,
-          user: req.user
+          user: req.user,
+          admin: process.env.ADMIN
         })
       }
     })
@@ -334,13 +344,19 @@ module.exports = function (app) {
 
   //login stuff
   app.get('/register', function(req, res) {
-    res.render('register', {user: req.user})
+    res.render('register', {
+      user: req.user,
+      admin: process.env.ADMIN
+    })
   })
 
   app.post('/register', function(req, res) {
     Account.register(new Account({ username : req.body.username }), req.body.password, function(err, account) {
       if (err) {
-        return res.render('register', { account : account })
+        return res.render('register', {
+          account : account,
+          admin: process.env.ADMIN
+        })
       }
       passport.authenticate('local')(req, res, function () {
         res.redirect('/')
@@ -349,7 +365,10 @@ module.exports = function (app) {
   })
 
   app.get('/login', function(req, res) {
-    res.render('login',  {user : req.user})
+    res.render('login',  {
+      user : req.user,
+      admin: process.env.ADMIN
+    })
   })
 
   app.post('/login', passport.authenticate('local'), function(req, res) {
