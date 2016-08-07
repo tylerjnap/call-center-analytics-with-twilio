@@ -116,7 +116,7 @@ module.exports = function (app) {
 
   app.post('/search', function(req, res) {
     var searchText = req.body.search
-    var data = {text: searchText, index: process.env.HOD_INDEX_NAME, print: 'all'}
+    var data = {text: searchText, index: process.env.HOD_INDEX_NAME, print: 'all', absolute_max_results: 10}
     hodClient.call('querytextindex', data, function(err, resp, body) {
       if (resp) {
         if (resp.body) {
