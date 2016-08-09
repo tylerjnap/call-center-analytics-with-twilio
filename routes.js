@@ -137,7 +137,7 @@ module.exports = function (app) {
 
   app.get('/findSimilar', function(req, res) {
     var indexReference = req.query.indexReference
-    var data = {index_reference: indexReference, indexes: process.env.HOD_INDEX_NAME, print: 'all'}
+    var data = {index_reference: indexReference, indexes: process.env.HOD_INDEX_NAME, print: 'all', absolute_max_results: 10}
     hodClient.call('findsimilar', data, function(err, resp, body) {
       if (resp) {
         if (resp.body) {
